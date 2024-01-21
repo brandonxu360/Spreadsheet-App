@@ -1,12 +1,11 @@
 using System;
-using System.Xml;
 
 namespace HW1
 {
     public class BST
     {
         // Root node of the BST instance with an initial value of null
-        public BSTNode Root { get; private set; } = null;
+        public BSTNode Root { get; private set; }
         
         // Adds new BSTNode that contains the input int value
         public void Add(int value)

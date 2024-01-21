@@ -1,12 +1,10 @@
-using System.Net.Sockets;
-
 namespace HW1
 {
     public class BSTNode
     {
         // Right and Left child nodes with initial value of null
-        public BSTNode RNode { get; private set; } = null;
-        public BSTNode LNode { get; private set; } = null;
+        public BSTNode RNode { get; private set; }
+        public BSTNode LNode { get; private set; }
         
         // Int value that the BSTNode represents 
         public int Value { get; private set; }
