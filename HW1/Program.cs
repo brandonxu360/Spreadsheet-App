@@ -15,8 +15,13 @@ namespace HW1
         // *Assumes input is correctly formatted
         private static string[] GetUserNums()
         {
+            // Prompt user with input requirements
             Console.WriteLine("Enter a collection of numbers in the range [0, 100], seperated by spaces: ");
+            
+            // Read and store user input
             var input = Console.ReadLine();
+            
+            // Split and return array of substrings
             return input.Split(' ');
         }
     }
