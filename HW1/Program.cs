@@ -8,6 +8,15 @@ namespace HW1
         {
             // Get collection of numbers from user and store in inputNums as an array of substrings
             var inputNums = GetUserNums();
+            
+            // Rudimentary testing
+            var myBst = new BST();
+            myBst.Add(1);
+            myBst.Add(2);
+            myBst.Add(3);
+            myBst.Add(211);
+            Console.WriteLine(myBst.Count());
+            myBst.DisplayInOrder();
         }
         
         // Prompts user for a line of numbers seperated by spaces.
