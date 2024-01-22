@@ -6,20 +6,21 @@ namespace HW1
     {
         public static void Main(string[] args)
         {
+            var myBST = new BST();
+            
             // Get collection of numbers from user and store in inputNums as an array of substrings
             var inputNums = GetUserNums();
             
-            // Rudimentary testing
-            var myBst = new BST();
-            myBst.Add(1);
-            myBst.Add(2);
-            myBst.Add(4);
-            myBst.Add(3);
-            myBst.Add(211);
+            // Parse each substring into an int and add it to a BST
+            foreach (var subS in inputNums)
+            {
+                myBST.Add(int.Parse(subS));
+            }
             
-            Console.WriteLine(myBst.NodeCount());
-            Console.WriteLine(myBst.LevelCount());
-            myBst.DisplayInOrder();
+            // Display BST and statistics
+            myBST.DisplayInOrder();
+            Console.WriteLine($"Node Count: {myBST.NodeCount()}");
+            Console.WriteLine($"Level Count: {myBST.LevelCount()}");
             
         }
         

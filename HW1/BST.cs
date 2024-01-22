@@ -24,9 +24,9 @@ namespace HW1
         // Public function to display BST node values in order
         public void DisplayInOrder()
         {
-            Console.Write('[');
+            Console.Write("BST In Order: [");
             DisplayInOrder(Root); // Call private recursive in-order function on root
-            Console.Write(']');
+            Console.Write("]\n");
         }
 
         // Private recursive function to traverse the BST in order and write the values of the nodes to console
