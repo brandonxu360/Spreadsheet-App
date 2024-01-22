@@ -21,7 +21,7 @@ namespace HW1
             myBST.DisplayInOrder();
             Console.WriteLine($"Node Count: {myBST.NodeCount()}");
             Console.WriteLine($"Level Count: {myBST.LevelCount()}");
-            
+            Console.WriteLine($"Theoretical minimum level count: {myBST.MinLevelCount()}");
         }
         
         // Prompts user for a line of numbers seperated by spaces.

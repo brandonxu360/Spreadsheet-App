@@ -81,5 +81,11 @@ namespace HW1
             // Return the higher level count (incremented by one for current node level)
             return (rightLevelCount > leftLevelCount) ? rightLevelCount + 1 : leftLevelCount + 1;
         }
+
+        // Public function to return minimum level based on number of nodes
+        public int MinLevelCount()
+        {
+            return (int)Math.Ceiling(Math.Log(NodeCount(Root), 2));
+        }
     }
 }
