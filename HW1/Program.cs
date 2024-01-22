@@ -13,10 +13,14 @@ namespace HW1
             var myBst = new BST();
             myBst.Add(1);
             myBst.Add(2);
+            myBst.Add(4);
             myBst.Add(3);
             myBst.Add(211);
-            Console.WriteLine(myBst.Count());
+            
+            Console.WriteLine(myBst.NodeCount());
+            Console.WriteLine(myBst.LevelCount());
             myBst.DisplayInOrder();
+            
         }
         
         // Prompts user for a line of numbers seperated by spaces.

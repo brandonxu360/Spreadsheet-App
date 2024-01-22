@@ -44,21 +44,42 @@ namespace HW1
         }
 
         // Public count function that returns int number of nodes in BST
-        public int Count()
+        public int NodeCount()
         {
-            return Count(Root); // Call private recursive count function on root
+            return NodeCount(Root); // Call private recursive count function on root
         }
 
         // Private recursive count function to return int number of nodes in the subtree defined by the input node as root
-        private int Count(BSTNode node)
+        private int NodeCount(BSTNode node)
         {
+            if (node == null) return 0; // Null node check (base case)
+            
             var count = 1; // Current node increments count by 1
 
             // Increment count by number of nodes in left and right subtrees (if they are not null)
-            if (node.RNode != null) count += Count(node.RNode); 
-            if (node.LNode != null) count += Count(node.LNode);
+            count += NodeCount(node.RNode); 
+            count += NodeCount(node.LNode);
 
             return count;
+        }
+        
+        // Public function to return number of levels in BST
+        public int LevelCount()
+        {
+            return LevelCount(Root);
+        }
+        
+        // Private recursive function to return number of levels in BST defined by input node as root
+        private int LevelCount(BSTNode node)
+        {
+            if (node == null) return 0; // Null node check (base case)
+            
+            // Recursively determine number of levels for the left and right subtrees
+            var rightLevelCount = LevelCount(node.RNode);
+            var leftLevelCount = LevelCount(node.LNode);
+
+            // Return the higher level count (incremented by one for current node level)
+            return (rightLevelCount > leftLevelCount) ? rightLevelCount + 1 : leftLevelCount + 1;
         }
     }
 }
