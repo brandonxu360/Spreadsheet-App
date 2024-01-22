@@ -1,3 +1,8 @@
+/*
+ * NAME: Brandon Xu
+ * SID:  11815117
+ */
+
 namespace HW1
 {
     public class BSTNode

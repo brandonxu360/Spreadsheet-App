@@ -1,3 +1,8 @@
+/*
+ * NAME: Brandon Xu
+ * SID:  11815117
+ */
+
 using System;
 
 namespace HW1
