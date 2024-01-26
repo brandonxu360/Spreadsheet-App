@@ -30,7 +30,7 @@ namespace HW1
         public void DisplayInOrder()
         {
             Console.Write("BST In Order: [");
-            DisplayInOrder(Root); // Call private recursive in-order function on root
+            if (Root != null) DisplayInOrder(Root); // Call private recursive in-order function on root
             Console.Write("]\n");
         }
 
@@ -90,7 +90,8 @@ namespace HW1
         // Public function to return minimum level based on number of nodes
         public int MinLevelCount()
         {
-            return (int)Math.Ceiling(Math.Log(NodeCount(Root), 2));
+            // Return 0 if BST is empty, otherwise return result of Floor(Log_2(n))
+            return Root == null ? 0 : (int)Math.Floor(Math.Log(NodeCount(Root), 2)) + 1;
         }
     }
 }

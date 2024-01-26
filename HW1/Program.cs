@@ -39,9 +39,11 @@ namespace HW1
             
             // Read and store user input
             var input = Console.ReadLine();
-            
-            // Split and return array of substrings
-            return input.Split(' ');
+
+            // Edge case - empty string input ("") -> return empty array
+            return input == "" ? new string[0] :
+                // Split and return array of substrings
+                input.Split(' ');
         }
     }
 }
