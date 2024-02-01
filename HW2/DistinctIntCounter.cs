@@ -1,3 +1,7 @@
+// <copyright file="DistinctIntCounter.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 namespace HW2;
 
 using System.Collections.Generic;
@@ -7,7 +11,7 @@ using System.Collections.Generic;
 /// This class provides methods to count the distinct integers in a given list using three different implementations:
 ///     - Using a hash set
 ///     - Without altering the list or dynamic memory allocation (O(1) storage)
-///     - Sorting the list and without dynamic memory allocation (O(1) storage, O(n) time)
+///     - Sorting the list and without dynamic memory allocation (O(1) storage, O(n) time).
 /// </summary>
 public class DistinctIntCounter
 {
@@ -23,7 +27,7 @@ public class DistinctIntCounter
     }
 
     /// <summary>
-    /// Counts the number of distinct integers in the input list using O(1) space - no dynamic memory allocation
+    /// Counts the number of distinct integers in the input list using O(1) space - no dynamic memory allocation.
     /// </summary>
     /// <param name="list">The list of integers to count the number of distinct integers from.</param>
     /// <returns>The number of distinct integers in the input list.</returns>
@@ -51,6 +55,38 @@ public class DistinctIntCounter
 
             // Increment the distinct counter if no duplicates were found
             if (isDistinct)
+            {
+                distinctIntCount++;
+            }
+        }
+
+        return distinctIntCount;
+    }
+
+    /// <summary>
+    /// Counts the number of distinct integers in the input list using the built-in sorting
+    /// sorting function and is O(1) space and O(n) time complexity.
+    /// </summary>
+    /// <param name="list">The list of integers to count the number of distinct integers from.</param>
+    /// <returns>The number of distinct integers in the input list.</returns>
+    public int CountWithSort(List<int> list)
+    {
+        // Duplicates are impossible in a list of length 0 or 1
+        if (list.Count == 0 || list.Count == 1)
+        {
+            return list.Count;
+        }
+
+        // Sort the input list
+        list.Sort();
+
+        // There is at least one distinct integer
+        int distinctIntCount = 1;
+
+        // Iterate over each item in the list to check for more distinct integers
+        for (int i = 1; i < list.Count; i++)
+        {
+            if (list[i] != list[i - 1])
             {
                 distinctIntCount++;
             }
