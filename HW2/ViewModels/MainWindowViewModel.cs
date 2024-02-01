@@ -1,4 +1,8 @@
-﻿namespace HW2.ViewModels;
+﻿// <copyright file="MainWindowViewModel.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace HW2.ViewModels;
 
 using System;
 using System.Collections.Generic;
@@ -27,12 +31,12 @@ public class MainWindowViewModel : ViewModelBase
         DistinctIntCounter distinctIntCounter = new DistinctIntCounter();
 
         // Create the random list of 10,000 random integers in the range [0, 20,000]
-        List<int> randomIntList = this.GenerateRandomIntsList(10000, 0, 20000);
+        List<int> randomIntList = this.GenerateRandomIntList(10000, 0, 20000);
 
         return "Default Return";
     }
 
-    private List<int> GenerateRandomIntsList(int count, int minValue, int maxValue)
+    private List<int> GenerateRandomIntList(int count, int minValue, int maxValue)
     {
         var randomList = new List<int>();
         var random = new Random();

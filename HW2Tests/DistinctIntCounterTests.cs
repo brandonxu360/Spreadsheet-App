@@ -1,14 +1,18 @@
+// <copyright file="DistinctIntCounterTests.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 namespace HW2Tests;
 
 using HW2;
 
 /// <summary>
-/// Unit tests for DistinctIntCounter service
+/// Unit tests for DistinctIntCounter service.
 /// </summary>
 public class DistinctIntCounterTests
 {
     /// <summary>
-    /// Setup for the unit tests
+    /// Setup for the unit tests.
     /// </summary>
     [SetUp]
     public void Setup()
@@ -18,7 +22,7 @@ public class DistinctIntCounterTests
     // COUNT WITH HASH SET TESTS
 
     /// <summary>
-    /// Unit test for an input list with five distinct integers and no duplicates
+    /// Unit test for an input list with five distinct integers and no duplicates.
     /// </summary>
     [Test]
     public void CountWithHashSet_AllDistinct()
@@ -36,7 +40,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for a input list with 5 duplicate integers
+    /// Unit test for a input list with 5 duplicate integers.
     /// </summary>
     [Test]
     public void CountWithHashSet_AllDuplicate()
@@ -54,7 +58,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an input list of duplicates and distinct integers (mixed)
+    /// Unit test for an input list of duplicates and distinct integers (mixed).
     /// </summary>
     [Test]
     public void CountWithHashSet_DistinctAndDuplicate()
@@ -72,7 +76,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an empty input list
+    /// Unit test for an empty input list.
     /// </summary>
     [Test]
     public void CountWithHashSet_EmptyList()
@@ -92,7 +96,7 @@ public class DistinctIntCounterTests
     // COUNT WITH O(1) SPACE
 
     /// <summary>
-    /// Unit test for an input list with five distinct integers and no duplicates
+    /// Unit test for an input list with five distinct integers and no duplicates.
     /// </summary>
     [Test]
     public void CountWithO1Space_AllDistinct()
@@ -105,12 +109,14 @@ public class DistinctIntCounterTests
 
         int result = distinctIntCounter.CountWithO1Space(list);
 
+        Console.WriteLine(result);
+
         // Result should be 5 distinct integers [1, 2, 3, 4, 5]
         Assert.That(result, Is.EqualTo(5));
     }
 
     /// <summary>
-    /// Unit test for a input list with 5 duplicate integers
+    /// Unit test for a input list with 5 duplicate integers.
     /// </summary>
     [Test]
     public void CountWithO1Space_AllDuplicate()
@@ -128,7 +134,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an input list of duplicates and distinct integers (mixed)
+    /// Unit test for an input list of duplicates and distinct integers (mixed).
     /// </summary>
     [Test]
     public void CountWithO1Space_DistinctAndDuplicate()
@@ -146,7 +152,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an empty input list
+    /// Unit test for an empty input list.
     /// </summary>
     [Test]
     public void CountWithO1Space_EmptyList()
