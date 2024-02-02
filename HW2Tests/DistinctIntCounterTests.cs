@@ -93,6 +93,41 @@ public class DistinctIntCounterTests
         Assert.That(result, Is.EqualTo(0));
     }
 
+    /// <summary>
+    /// Unit test for an unexpected list of chars.
+    /// </summary>
+    [Test]
+    public void CountWithHashSet_CharList()
+    {
+        // Test case input - empty list
+        List<int> list = ['a', 'b', 'a'];
+
+        // Instantiate the distinctIntCounter service
+        DistinctIntCounter distinctIntCounter = new DistinctIntCounter();
+
+        int result = distinctIntCounter.CountWithHashSet(list);
+
+        // Result should be 2 distinct items ['a', 'b']
+        // Function is still expected to operate normally
+        Assert.That(result, Is.EqualTo(2));
+    }
+
+    /// <summary>
+    /// Unit test for an unexpected null list.
+    /// </summary>
+    [Test]
+    public void CountWithHashSet_NullList()
+    {
+        // Test case input - null
+        List<int> list = null!;
+
+        // Instantiate the distinctIntCounter service
+        DistinctIntCounter distinctIntCounter = new DistinctIntCounter();
+
+        // ArgumentNullException expected
+        Assert.Throws<ArgumentNullException>(() => distinctIntCounter.CountWithHashSet(list));
+    }
+
     // COUNT WITH O(1) SPACE METHODS
 
     /// <summary>
@@ -169,6 +204,41 @@ public class DistinctIntCounterTests
         Assert.That(result, Is.EqualTo(0));
     }
 
+    /// <summary>
+    /// Unit test for an unexpected list of chars.
+    /// </summary>
+    [Test]
+    public void CountWithO1Space_CharList()
+    {
+        // Test case input - empty list
+        List<int> list = ['a', 'b', 'a'];
+
+        // Instantiate the distinctIntCounter service
+        DistinctIntCounter distinctIntCounter = new DistinctIntCounter();
+
+        int result = distinctIntCounter.CountWithO1Space(list);
+
+        // Result should be 2 distinct items ['a', 'b']
+        // Function is still expected to operate normally
+        Assert.That(result, Is.EqualTo(2));
+    }
+
+    /// <summary>
+    /// Unit test for an unexpected null list.
+    /// </summary>
+    [Test]
+    public void CountWithO1Space_NullList()
+    {
+        // Test case input - null
+        List<int> list = null!;
+
+        // Instantiate the distinctIntCounter service
+        DistinctIntCounter distinctIntCounter = new DistinctIntCounter();
+
+        // NullReferenceException expected
+        Assert.Throws<NullReferenceException>(() => distinctIntCounter.CountWithO1Space(list));
+    }
+
     // COUNT WITH SORT METHODS
 
     /// <summary>
@@ -243,5 +313,40 @@ public class DistinctIntCounterTests
 
         // Result should be 0 distinct integers []
         Assert.That(result, Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Unit test for an unexpected list of chars.
+    /// </summary>
+    [Test]
+    public void CountWithSort_CharList()
+    {
+        // Test case input - empty list
+        List<int> list = ['a', 'b', 'a'];
+
+        // Instantiate the distinctIntCounter service
+        DistinctIntCounter distinctIntCounter = new DistinctIntCounter();
+
+        int result = distinctIntCounter.CountWithSort(list);
+
+        // Result should be 2 distinct items ['a', 'b']
+        // Function is still expected to operate normally
+        Assert.That(result, Is.EqualTo(2));
+    }
+
+    /// <summary>
+    /// Unit test for an unexpected null list.
+    /// </summary>
+    [Test]
+    public void CountWithSort_NullList()
+    {
+        // Test case input - null
+        List<int> list = null!;
+
+        // Instantiate the distinctIntCounter service
+        DistinctIntCounter distinctIntCounter = new DistinctIntCounter();
+
+        // NullReferenceException expected
+        Assert.Throws<NullReferenceException>(() => distinctIntCounter.CountWithSort(list));
     }
 }
