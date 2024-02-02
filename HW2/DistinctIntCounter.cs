@@ -22,8 +22,7 @@ public class DistinctIntCounter
     /// <returns>The number of distinct integers in the input list.</returns>
     public int CountWithHashSet(List<int> list)
     {
-        HashSet<int> hashSet = [..list];
-        return hashSet.Count;
+        return new HashSet<int>(list).Count;
     }
 
     /// <summary>
