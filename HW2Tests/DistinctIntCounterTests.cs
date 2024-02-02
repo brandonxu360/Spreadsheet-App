@@ -19,10 +19,10 @@ public class DistinctIntCounterTests
     {
     }
 
-    // COUNT WITH HASH SET TESTS METHODS
+    // COUNT WITH HASH SET METHOD TESTS
 
     /// <summary>
-    /// Unit test for an input list with five distinct integers and no duplicates.
+    /// Unit test for the CountWithHashSet function with an input list with five distinct integers and no duplicates.
     /// </summary>
     [Test]
     public void CountWithHashSet_AllDistinct()
@@ -40,7 +40,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for a input list with 5 duplicate integers.
+    /// Unit test for the CountWithHashSet function with an input list of 5 duplicate integers.
     /// </summary>
     [Test]
     public void CountWithHashSet_AllDuplicate()
@@ -58,7 +58,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an input list of duplicates and distinct integers (mixed).
+    /// Unit test for the CountWithHashSet function with an input list of duplicates and distinct integers (mixed).
     /// </summary>
     [Test]
     public void CountWithHashSet_DistinctAndDuplicate()
@@ -76,7 +76,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an empty input list.
+    /// Unit test for the CountWithHashSet function with an empty input list.
     /// </summary>
     [Test]
     public void CountWithHashSet_EmptyList()
@@ -94,7 +94,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an unexpected list of chars.
+    /// Unit test for the CountWithHashSet function with an unexpected list of chars.
     /// </summary>
     [Test]
     public void CountWithHashSet_CharList()
@@ -113,7 +113,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an unexpected null list.
+    /// Unit test for the CountWithHashSet function with an unexpected null list.
     /// </summary>
     [Test]
     public void CountWithHashSet_NullList()
@@ -131,7 +131,7 @@ public class DistinctIntCounterTests
     // COUNT WITH O(1) SPACE METHODS
 
     /// <summary>
-    /// Unit test for an input list with five distinct integers and no duplicates.
+    /// Unit test for the CountWithO1Space function with an input list with five distinct integers and no duplicates.
     /// </summary>
     [Test]
     public void CountWithO1Space_AllDistinct()
@@ -144,14 +144,12 @@ public class DistinctIntCounterTests
 
         int result = distinctIntCounter.CountWithO1Space(list);
 
-        Console.WriteLine(result);
-
         // Result should be 5 distinct integers [1, 2, 3, 4, 5]
         Assert.That(result, Is.EqualTo(5));
     }
 
     /// <summary>
-    /// Unit test for a input list with 5 duplicate integers.
+    /// Unit test for the CountWithO1Space function with an input list with 5 duplicate integers.
     /// </summary>
     [Test]
     public void CountWithO1Space_AllDuplicate()
@@ -169,7 +167,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an input list of duplicates and distinct integers (mixed).
+    /// Unit test for the CountWithO1Space function with an input list of duplicates and distinct integers (mixed).
     /// </summary>
     [Test]
     public void CountWithO1Space_DistinctAndDuplicate()
@@ -187,7 +185,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an empty input list.
+    /// Unit test for the CountWithO1Space function with an empty input list.
     /// </summary>
     [Test]
     public void CountWithO1Space_EmptyList()
@@ -205,7 +203,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an unexpected list of chars.
+    /// Unit test for the CountWithO1Space function with an unexpected list of chars.
     /// </summary>
     [Test]
     public void CountWithO1Space_CharList()
@@ -224,7 +222,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an unexpected null list.
+    /// Unit test for the CountWithO1Space function with an unexpected null list.
     /// </summary>
     [Test]
     public void CountWithO1Space_NullList()
@@ -242,7 +240,7 @@ public class DistinctIntCounterTests
     // COUNT WITH SORT METHODS
 
     /// <summary>
-    /// Unit test for an input list with five distinct integers and no duplicates.
+    /// Unit test for the CountWithSort function with an input list with five distinct integers and no duplicates.
     /// </summary>
     [Test]
     public void CountWithSort_AllDistinct()
@@ -262,7 +260,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for a input list with 5 duplicate integers.
+    /// Unit test for the CountWithSort function with an input list with 5 duplicate integers.
     /// </summary>
     [Test]
     public void CountWithSort_AllDuplicate()
@@ -280,7 +278,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an input list of duplicates and distinct integers (mixed).
+    /// Unit test for the CountWithSort function with an input list of duplicates and distinct integers (mixed).
     /// </summary>
     [Test]
     public void CountWithSort_DistinctAndDuplicate()
@@ -298,7 +296,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an empty input list.
+    /// Unit test for the CountWithSort function with an empty input list.
     /// </summary>
     [Test]
     public void CountWithSort_EmptyList()
@@ -316,7 +314,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an unexpected list of chars.
+    /// Unit test for the CountWithSort function with an unexpected list of chars.
     /// </summary>
     [Test]
     public void CountWithSort_CharList()
@@ -335,7 +333,7 @@ public class DistinctIntCounterTests
     }
 
     /// <summary>
-    /// Unit test for an unexpected null list.
+    /// Unit test for the CountWithSort function with an unexpected null list.
     /// </summary>
     [Test]
     public void CountWithSort_NullList()
