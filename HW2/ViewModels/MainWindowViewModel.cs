@@ -48,9 +48,9 @@ public class MainWindowViewModel : ViewModelBase
         string resultString = $"1. HashSet method: {hashSetCountResult} distinct integers\n";
         resultString += "   The time complexity of the HashSet method is O(n) because according to MSDN:" +
                         "\n       - The time complexity of the HashSet<T>(IEnumerable<T>) constructor is O(n)" +
-                        "\n       - THe time complexity of retrieving Count of HashSet is O(1)" +
-                        "\n   Thus, the time complexity is dominated by O(n) and is O(n)\n";
-        resultString += $"2. O(1) Space method: {o1SpaceCountResult} distinct integers\n";
+                        "\n       - The time complexity of retrieving Count of HashSet is O(1)" +
+                        "\n   Thus, the time complexity is dominated by O(n) and is O(n).\n";
+        resultString += $"2. O(1) space method: {o1SpaceCountResult} distinct integers\n";
         resultString += $"3. Sorted list method: {sortCountResult} distinct integers\n";
 
         return resultString;
