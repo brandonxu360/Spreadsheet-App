@@ -58,7 +58,7 @@ public class FibonacciTextReader : TextReader
     /// <returns>String representing the next line of the Fibonacci sequence, null after nth call where n is maxLines.</returns>
     public override string? ReadLine()
     {
-        // Return null if the current line exceeds maxLine attribute (enforce maxLine attribute)
+        // Return null if the current line reaches or exceeds maxLine attribute (enforce maxLine attribute)
         if (this.currentLine >= this.maxLines)
         {
             return null;
