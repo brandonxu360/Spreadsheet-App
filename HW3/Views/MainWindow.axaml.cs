@@ -2,15 +2,14 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System;
-using Avalonia.Platform.Storage;
-
 namespace HW3.Views;
 
+using System;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
 using HW3.ViewModels;
 using ReactiveUI;
@@ -25,15 +24,21 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     /// </summary>
     public MainWindow()
     {
-        InitializeComponent();
-        DataContext = new MainWindowViewModel();
+        this.InitializeComponent();
+        this.DataContext = new MainWindowViewModel();
 
-        this.WhenActivated(d => d(ViewModel!.AskForFileToLoad.RegisterHandler(DoOpenFile)));
+        this.WhenActivated(d =>
+        {
+            var mainWindowViewModel = this.ViewModel;
+            if (mainWindowViewModel != null)
+            {
+                d(mainWindowViewModel.AskForFileToLoad.RegisterHandler(this.DoOpenFile));
+            }
+        });
 
         // TODO: add code for saving
     }
 
-    // Use the following version of DoOpenFile if you are using Avalonia 11
     /// <summary>
     /// Opens a dialog to select a file which will be used to load content.
     /// </summary>
@@ -47,7 +52,6 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 
         // List of filtered types
         var fileTypes = new List<FilePickerFileType> { FilePickerFileTypes.TextPlain };
-
 
         if (topLevel != null)
         {
@@ -73,5 +77,3 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         // TODO: your code goes here.
     }
 }
-
-
