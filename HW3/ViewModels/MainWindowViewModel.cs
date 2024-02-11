@@ -10,7 +10,7 @@ using System.Reactive.Linq;
 using ReactiveUI;
 
 /// <summary>
-/// The MainWindowViewModel
+/// The MainWindowViewModel.
 /// </summary>
 public class MainWindowViewModel : ViewModelBase
 {
@@ -40,6 +40,11 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Gets prompts the view to allow the user to select a file for loading by triggering the DoOpenFile method in the MainWindow.
+    /// </summary>
+    public Interaction<Unit, string?> AskForFileToLoad { get; }
+
+    /// <summary>
     /// This method will be executed when the user wants to load content from a file.
     /// </summary>
     public async void LoadFromFile()
@@ -61,8 +66,6 @@ public class MainWindowViewModel : ViewModelBase
     {
         // TODO: Implement this method.
     }
-
-    public Interaction<Unit, string?> AskForFileToLoad { get; }
 
     // other code...
 

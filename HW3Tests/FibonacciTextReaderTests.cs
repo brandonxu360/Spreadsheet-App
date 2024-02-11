@@ -47,7 +47,7 @@ public class FibonacciTextReaderTests
     }
     
     [Test]
-    public void ReadLine_Returns_Null_If_Reader_Is_Empty()
+    public void ReadLine_Returns_Null_If_MaxLines_is_Zero()
     {
         // Arrange
         var reader = new FibonacciTextReader(0); // Empty reader
