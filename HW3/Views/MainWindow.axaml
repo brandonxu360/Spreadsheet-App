@@ -21,6 +21,8 @@
                 <MenuItem Header="_Open..." Command="{Binding LoadFromFile}"/>
                 <MenuItem Header="Load Fibonacci number (first 50)" Command="{Binding LoadFirst50Fibonacci}"></MenuItem>
                 <MenuItem Header="Load Fibonacci number (first 100)" Command="{Binding LoadFirst100Fibonacci}"></MenuItem>
+                <Separator/>
+                <MenuItem Header="Save to file"/>
             </MenuItem>
         </Menu>
         <TextBox Text="{Binding FibonacciNumbers}"/>
