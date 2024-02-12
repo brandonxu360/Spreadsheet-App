@@ -7,6 +7,7 @@ namespace HW3.Models;
 // ReSharper disable InconsistentNaming (naming convention conflicts with StyleCop and rubric convention)
 using System.IO;
 using System.Numerics;
+using System.Text;
 
 /// <summary>
 /// Overrides the TextReader class to read a sequence of Fibonacci numbers.
@@ -90,7 +91,12 @@ public class FibonacciTextReader : TextReader
     /// <returns>String representing the lines read within maxLines.</returns>
     public override string ReadToEnd()
     {
-        // TODO: implement overridden ReadToEnd body
-        return base.ReadToEnd();
+        var stringBuilder = new StringBuilder();
+        while (this.ReadLine() is { } line)
+        {
+            stringBuilder.AppendLine(line);
+        }
+
+        return stringBuilder.ToString();
     }
 }

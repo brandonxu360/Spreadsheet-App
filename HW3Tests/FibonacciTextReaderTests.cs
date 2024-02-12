@@ -117,13 +117,31 @@ public class FibonacciTextReaderTests
         // Arrange
         const int maxLines = 10; // Assuming we want to generate the first 10 Fibonacci numbers
         var reader = new FibonacciTextReader(maxLines);
-        const string expectedSequence = "0\n1\n1\n2\n3\n5\n8\n13\n21\n34\n"; // Fibonacci sequence of length 10
+        const string expectedSequence = "0\r\n1\r\n1\r\n2\r\n3\r\n5\r\n8\r\n13\r\n21\r\n34\r\n"; // Fibonacci sequence of length 10
 
         // Act
         var actualSequence = reader.ReadToEnd();
 
         // Assert
         Assert.That(actualSequence, Is.EqualTo(expectedSequence));
+    }
+
+    /// <summary>
+    /// Tests that ReadToEnd returns the correct number of lines/numbers for a fibonacci sequence of length 10.
+    /// </summary>
+    [Test]
+    public void ReadToEnd_Returns_Correct_Number_Of_Lines_For_Ten_MaxLines()
+    {
+        // Arrange
+        const int maxLines = 10; // Assuming we want to generate the first 10 Fibonacci numbers
+        var reader = new FibonacciTextReader(maxLines);
+
+        // Act
+        var actualSequence = reader.ReadToEnd();
+        var actualNumberOfLines = actualSequence.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length; // RemoveEmptyEntries to remove the empty string at the end
+
+        // Assert
+        Assert.That(actualNumberOfLines, Is.EqualTo(maxLines));
     }
 
     /// <summary>
@@ -138,7 +156,7 @@ public class FibonacciTextReaderTests
 
         // Act
         var actualSequence = reader.ReadToEnd();
-        var actualNumberOfLines = actualSequence.Split('\n').Length;
+        var actualNumberOfLines = actualSequence.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length; // RemoveEmptyEntries to remove the empty string at the end
 
         // Assert
         Assert.That(actualNumberOfLines, Is.EqualTo(maxLines));
