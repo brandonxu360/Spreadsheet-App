@@ -7,6 +7,8 @@ namespace HW3.ViewModels;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
+
+// ReSharper disable once RedundantNameQualifier
 using HW3.Models;
 using ReactiveUI;
 
@@ -27,7 +29,7 @@ public class MainWindowViewModel : ViewModelBase
         this.AskForFileToLoad = new Interaction<Unit, string?>();
 
         // Similarly to load, there is a need to create an interaction for saving into a file:
-        // TODO: Your code goes here.
+        this.AskForFileToSave = new Interaction<Unit, string?>();
     }
 
     /// <summary>
@@ -44,6 +46,11 @@ public class MainWindowViewModel : ViewModelBase
     /// Gets prompts the view to allow the user to select a file for loading by triggering the DoOpenFile method in the MainWindow.
     /// </summary>
     public Interaction<Unit, string?> AskForFileToLoad { get; }
+
+    /// <summary>
+    /// Gets prompts the view to allow the user to select a file for loading by triggering the DoOpenFile method in the MainWindow.
+    /// </summary>
+    public Interaction<Unit, string?> AskForFileToSave { get; }
 
     /// <summary>
     /// This method will be executed when the user wants to load content from a file.
@@ -63,9 +70,24 @@ public class MainWindowViewModel : ViewModelBase
         textReader.Close();
     }
 
+    /// <summary>
+    /// This method will be executed when the user wants to load content from a file.
+    /// </summary>
     public async void SaveToFile()
     {
-        // TODO: Implement this method.
+        // Wait for user to select file to save to.
+        var filePath = await this.AskForFileToSave.Handle(default);
+        if (filePath == null)
+        {
+            return;
+        }
+
+        // If the user has selected a file, create the stream read
+        // Open writing stream from the file.
+        await using var streamWriter = new StreamWriter(filePath);
+
+        // Write the contents of FibonacciNumbers to the file
+        await streamWriter.WriteLineAsync(this.FibonacciNumbers);
     }
 
     /// <summary>

@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
+
+// ReSharper disable once RedundantNameQualifier
 using HW3.ViewModels;
 using ReactiveUI;
 
@@ -30,13 +32,14 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         this.WhenActivated(d =>
         {
             var mainWindowViewModel = this.ViewModel;
-            if (mainWindowViewModel != null)
+            if (mainWindowViewModel == null)
             {
-                d(mainWindowViewModel.AskForFileToLoad.RegisterHandler(this.DoOpenFile));
+                return;
             }
-        });
 
-        // TODO: add code for saving
+            d(mainWindowViewModel.AskForFileToLoad.RegisterHandler(this.DoOpenFile));
+            d(mainWindowViewModel.AskForFileToSave.RegisterHandler(this.DoSaveFile));
+        });
     }
 
     /// <summary>
@@ -74,6 +77,22 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
     private async Task DoSaveFile(InteractionContext<Unit, string?> interaction)
     {
-        // TODO: your code goes here.
+        // Get top level from the current control. Alternatively, you can use Window reference instead.
+        var topLevel = TopLevel.GetTopLevel(this);
+
+        // List of filtered types
+        var fileTypes = new List<FilePickerFileType> { FilePickerFileTypes.TextPlain };
+
+        if (topLevel != null)
+        {
+            // Start async operation to open the dialog.
+            var filePath = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Save Text File",
+                FileTypeChoices = fileTypes,
+            });
+
+            interaction.SetOutput(filePath?.Path.AbsolutePath);
+        }
     }
 }
