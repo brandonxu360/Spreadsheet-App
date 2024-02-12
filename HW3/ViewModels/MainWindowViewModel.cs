@@ -7,6 +7,7 @@ namespace HW3.ViewModels;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
+using HW3.Models;
 using ReactiveUI;
 
 /// <summary>
@@ -67,7 +68,21 @@ public class MainWindowViewModel : ViewModelBase
         // TODO: Implement this method.
     }
 
-    // other code...
+    /// <summary>
+    /// Replaces the content of FibonacciNumbers with the first 50 numbers in the fibonacci sequence using FibonacciTextReader.
+    /// </summary>
+    public void LoadFirst50Fibonacci()
+    {
+        this.FibonacciNumbers = new FibonacciTextReader(50).ReadToEnd();
+    }
+
+    /// <summary>
+    /// Replaces the content of FibonacciNumbers with the first 100 numbers in the fibonacci sequence using FibonacciTextReader.
+    /// </summary>
+    public void LoadFirst100Fibonacci()
+    {
+        this.FibonacciNumbers = new FibonacciTextReader(100).ReadToEnd();
+    }
 
     /// <summary>
     /// Reads all the characters from a file using the input TextReader and replaces the existing content in the _fibonacci field.
