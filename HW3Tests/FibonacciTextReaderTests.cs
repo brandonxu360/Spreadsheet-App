@@ -15,7 +15,7 @@ public class FibonacciTextReaderTests
     /// Tests if ReadLine returns the correct input for the first two numbers as they are an edge case in the sequence.
     /// </summary>
     [Test]
-    public void ReadLine_Returns_First_Two_Numbers()
+    public void ReadLineReturnsFirstTwoNums()
     {
         // Arrange
         var reader = new FibonacciTextReader(2);
@@ -35,7 +35,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadLine returns the correct fibonacci sequence for a sequence of length 10.
     /// </summary>
     [Test]
-    public void ReadLine_Returns_Correct_Fibonacci_Sequence()
+    public void ReadLineReturnsFirstTenNums()
     {
         // Arrange
         const int maxLines = 10; // Assuming we want to generate the first 10 Fibonacci numbers
@@ -57,7 +57,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadLine returns null when maxLines is 0.
     /// </summary>
     [Test]
-    public void ReadLine_Returns_Null_If_MaxLines_Is_Zero()
+    public void ReadLineMaxLinesZero()
     {
         // Arrange
         var reader = new FibonacciTextReader(0); // No line should be returned (null expected instead)
@@ -73,7 +73,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadLine returns null when maxLines is negative.
     /// </summary>
     [Test]
-    public void ReadLine_Returns_Null_If_MaxLines_Is_Negative()
+    public void ReadLineMaxLinesNegative()
     {
         // Arrange
         var reader = new FibonacciTextReader(-1); // No line should be returned (null expected instead)
@@ -89,7 +89,7 @@ public class FibonacciTextReaderTests
     ///  Tests if ReadLine returns null when maxLines is reached.
     /// </summary>
     [Test]
-    public void ReadLine_Returns_Null_After_MaxLines_Calls()
+    public void ReadLineMaxLinesReached()
     {
         // Arrange
         const int maxLines = 5; // Assuming we want to generate the first 5 Fibonacci numbers
@@ -112,7 +112,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadToEnd returns the correct fibonacci sequence for a sequence of length 10.
     /// </summary>
     [Test]
-    public void ReadToEnd_Returns_Correct_Sequence()
+    public void ReadToEndReturnsCorrectSequence()
     {
         // Arrange
         const int maxLines = 10; // Assuming we want to generate the first 10 Fibonacci numbers
@@ -130,7 +130,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadToEnd returns the correct number of lines/numbers for a fibonacci sequence of length 10.
     /// </summary>
     [Test]
-    public void ReadToEnd_Returns_Correct_Number_Of_Lines_For_Ten_MaxLines()
+    public void ReadToEndReturnsCorrectNumLines()
     {
         // Arrange
         const int maxLines = 10; // Assuming we want to generate the first 10 Fibonacci numbers
@@ -148,7 +148,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadToEnd returns the correct number of lines/numbers for a fibonacci sequence of length 100.
     /// </summary>
     [Test]
-    public void ReadToEnd_Returns_Correct_Number_Of_Lines_For_Large_MaxLines()
+    public void ReadToEndReturnsCorrectNumLinesLarge()
     {
         // Arrange
         const int maxLines = 100; // Assuming we want to generate the first 100 Fibonacci numbers
@@ -166,7 +166,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadToEnd does not return any lines/numbers when maxLines is 0.
     /// </summary>
     [Test]
-    public void ReadToEnd_Returns_Empty_String_If_MaxLines_Is_Zero()
+    public void ReadToEndMaxLinesZero()
     {
         // Arrange
         const int maxLines = 0; // No lines should be returned
@@ -183,7 +183,7 @@ public class FibonacciTextReaderTests
     /// Tests that ReadToEnd does not return any lines/numbers when maxLines is negative.
     /// </summary>
     [Test]
-    public void ReadToEnd_Returns_Empty_String_For_Negative_MaxLines()
+    public void ReadToEndMaxLinesNegative()
     {
         // Arrange
         const int maxLines = -1; // Negative max lines
