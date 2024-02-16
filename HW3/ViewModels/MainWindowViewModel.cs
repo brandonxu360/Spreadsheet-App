@@ -33,13 +33,13 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Gets and sets fibonacciNumber attribute value
+    /// Gets or sets fibonacciNumber attribute value
     /// TODO: You need to bind this property in the .axaml file.
     /// </summary>
     public string FibonacciNumbers
     {
         get => this.fibonacciNumbers;
-        private set => this.RaiseAndSetIfChanged(ref this.fibonacciNumbers, value);
+        set => this.RaiseAndSetIfChanged(ref this.fibonacciNumbers, value);
     }
 
     /// <summary>
