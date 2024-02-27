@@ -13,7 +13,7 @@ public class Spreadsheet
     /// <summary>
     /// The 2D array of cells to represent the cells of the spreadsheet.
     /// </summary>
-    private Cell?[,]? cells;
+    private Cell?[,] cells;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
@@ -22,6 +22,17 @@ public class Spreadsheet
     /// <param name="columnCount">The number of columns in the spreadsheet.</param>
     public Spreadsheet(int rowCount, int columnCount)
     {
+        // Initialize the 2D array of cells according to the provided dimensions
+        this.cells = new Cell[rowCount, columnCount];
+
+        // Create a spreadsheet cell and assign it to each position in the cell array
+        for (int i = 0; i < rowCount; i++)
+        {
+            for (int j = 0; j < columnCount; j++)
+            {
+                this.cells[i, j] = new SpreadsheetCell(i, j);
+            }
+        }
     }
 
     /// <summary>
@@ -32,7 +43,7 @@ public class Spreadsheet
     /// <returns>The Cell object at the column and cell index.</returns>
     public Cell? GetCell(int columnIndex, int rowIndex)
     {
-        return this.cells?[rowIndex, columnIndex] ?? null;
+        return this.cells[rowIndex, columnIndex] ?? null;
     }
 
     private class SpreadsheetCell : Cell
