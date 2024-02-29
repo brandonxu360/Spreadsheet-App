@@ -75,6 +75,7 @@ internal class SpreadsheetEngineTests
         Assert.Throws<OverflowException>(() =>
         {
             // The initialization of the Cell array with negative parameters should throw an OverflowException
+            // ReSharper disable once UnusedVariable
             var spreadsheet = new Spreadsheet(rowCount, columnCount);
         });
     }
@@ -180,7 +181,7 @@ internal class SpreadsheetEngineTests
     /// <summary>
     /// Tests cell value update with reference text input to itself when the reference is two characters and value initially empty (evaluate reference to same cell).
     /// For example, cell at B3 with value "" referencing B3
-    /// This test case was created due to strange behavior noticed when using the UI
+    /// This test case was created due to strange behavior noticed when using the UI.
     /// </summary>
     [Test]
     public void SpreadsheetCellUpdateReferenceSelfTwoCharAndEmpty()

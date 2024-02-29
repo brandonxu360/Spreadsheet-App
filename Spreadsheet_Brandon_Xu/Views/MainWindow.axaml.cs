@@ -76,6 +76,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     }
 
     // Set header template to be the row index + 1
+    // ReSharper disable once UnusedParameter.Local
     private void DataGrid_LoadingRow(object? sender, DataGridRowEventArgs dataGridRowEventArgs)
     {
         dataGridRowEventArgs.Row.Header = dataGridRowEventArgs.Row.GetIndex() + 1;

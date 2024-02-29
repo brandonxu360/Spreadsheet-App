@@ -51,11 +51,13 @@ public abstract class Cell : INotifyPropertyChanged
     /// <summary>
     /// Gets the row index of the cell in the grid.
     /// </summary>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public int RowIndex { get; }
 
     /// <summary>
     /// Gets the column index of the cell in the grid.
     /// </summary>
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public int ColumnIndex { get; }
 
     /// <summary>
@@ -111,6 +113,7 @@ public abstract class Cell : INotifyPropertyChanged
     /// <typeparam name="T">The type of the field.</typeparam>
     /// <returns>Bool indicating if the field was changed.</returns>
     // ReSharper disable once ParameterHidesMember
+    // ReSharper disable once UnusedMethodReturnValue.Local
     private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value))
