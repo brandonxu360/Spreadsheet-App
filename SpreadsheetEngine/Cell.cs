@@ -79,8 +79,12 @@ public abstract class Cell : INotifyPropertyChanged
     {
         get => this.value;
 
-        // Must be implemented in children class
-        set => this.SetValue(value);
+        set
+        {
+            // Must be implemented in children class
+            this.SetValue(value);
+            this.OnPropertyChanged();
+        }
     }
 
     /// <summary>

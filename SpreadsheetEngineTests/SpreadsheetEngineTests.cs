@@ -126,25 +126,25 @@ internal class SpreadsheetEngineTests
         // Arrange
         var spreadsheet = new Spreadsheet(1, 2);
         var cellA1 = spreadsheet.GetCell(0, 0);
-        var cellA2 = spreadsheet.GetCell(0, 1);
+        var cellB1 = spreadsheet.GetCell(0, 1);
 
         // Set value of A1 to "hello"
         Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
         cellA1.Value = "hello";
 
-        // Set value of A2 to "not hello"
-        Debug.Assert(cellA2 != null, nameof(cellA2) + " != null");
-        cellA2.Value = "not hello";
+        // Set value of B1 to "not hello"
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
+        cellB1.Value = "not hello";
 
         // Act
 
-        // Set A2 to reference A1 through text
-        cellA2.Text = "=A1";
+        // Set B1 to reference A1 through text
+        cellB1.Text = "=A1";
 
         // Assert
 
-        // A2 value should become "hello"
-        Assert.That(cellA2.Value, Is.EqualTo("hello"));
+        // B1 value should become "hello"
+        Assert.That(cellB1.Value, Is.EqualTo("hello"));
     }
 
     /// <summary>
@@ -156,24 +156,51 @@ internal class SpreadsheetEngineTests
         // Arrange
         var spreadsheet = new Spreadsheet(1, 2);
         var cellA1 = spreadsheet.GetCell(0, 0);
-        var cellA2 = spreadsheet.GetCell(0, 1);
+        var cellB1 = spreadsheet.GetCell(0, 1);
 
         // Set value of A1 to "hello"
         Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
         cellA1.Value = "hello";
 
-        // Set value of A2 to "not hello"
-        Debug.Assert(cellA2 != null, nameof(cellA2) + " != null");
-        cellA2.Value = "not hello";
+        // Set value of B1 to "not hello"
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
+        cellB1.Value = "not hello";
 
         // Act
 
-        // Set A2 to reference itself (A2) through text
-        cellA2.Text = "=B1";
+        // Set B1 to reference itself (B1) through text
+        cellB1.Text = "=B1";
 
         // Assert
 
-        // A2 value should stay "not hello"
-        Assert.That(cellA2.Value, Is.EqualTo("not hello"));
+        // B1 value should stay "not hello"
+        Assert.That(cellB1.Value, Is.EqualTo("not hello"));
+    }
+
+    /// <summary>
+    /// Tests cell value update with reference text input to itself when the reference is two characters and value initially empty (evaluate reference to same cell).
+    /// For example, cell at B3 with value "" referencing B3
+    /// This test case was created due to strange behavior noticed when using the UI
+    /// </summary>
+    [Test]
+    public void SpreadsheetCellUpdateReferenceSelfTwoCharAndEmpty()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 2);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        var cellB1 = spreadsheet.GetCell(0, 1);
+
+        Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
+
+        // Act
+
+        // Set B1 to reference itself (B1) through text
+        cellB1.Text = "=B1";
+
+        // Assert
+
+        // B1 value should stay "" (empty)
+        Assert.That(cellB1.Value, Is.EqualTo(string.Empty));
     }
 }

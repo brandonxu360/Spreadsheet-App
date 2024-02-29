@@ -4,8 +4,8 @@
 
 namespace Spreadsheet_Brandon_Xu.ViewModels;
 
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using SpreadsheetEngine;
 
@@ -33,6 +33,50 @@ public class MainWindowViewModel : ViewModelBase
     /// </summary>
     public List<List<Cell>>? SpreadsheetData { get; set; }
 
+    /// <summary>
+    /// Executes the demo.
+    /// </summary>
+    public void ExecuteRunDemo()
+    {
+        // Set random cells to "Hello World!"
+        Random random = new Random();
+        foreach (var rowIndex in Enumerable.Range(0, 50))
+        {
+            foreach (var columnIndex in Enumerable.Range(0, 'Z' - 'A' + 1))
+            {
+                var cell = this.spreadsheet?.GetCell(rowIndex, columnIndex);
+                if (cell != null)
+                {
+                    // Set random cells to "Hello World!"
+                    if (random.Next(10) < 5)
+                    {
+                        cell.Text = "Hello World!";
+                    }
+                }
+            }
+        }
+
+        // Set column B cells to "This is cell B#"
+        foreach (var rowIndex in Enumerable.Range(0, 50))
+        {
+            var cellB = this.spreadsheet?.GetCell(rowIndex, 1); // Column B
+            if (cellB != null)
+            {
+                cellB.Text = $"This is cell B{rowIndex + 1}";
+            }
+        }
+
+        // Set column A cells to "=B#"
+        foreach (var rowIndex in Enumerable.Range(0, 50))
+        {
+            var cellA = this.spreadsheet?.GetCell(rowIndex, 0); // Column A
+            if (cellA != null)
+            {
+                cellA.Text = $"=B{rowIndex + 1}";
+            }
+        }
+    }
+
     private void InitializeSpreadsheet()
     {
         const int rowCount = 50;
@@ -46,11 +90,10 @@ public class MainWindowViewModel : ViewModelBase
             var columns = new List<Cell>(columnCount);
             foreach (var columnIndex in Enumerable.Range(0, columnCount))
             {
-                columns.Add(this.spreadsheet.GetCell(rowIndex, columnIndex));
+                columns.Add(this.spreadsheet.GetCell(rowIndex, columnIndex) ?? throw new InvalidOperationException());
             }
 
             this.SpreadsheetData.Add(columns);
         }
     }
-
 }

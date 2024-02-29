@@ -2,11 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Text.RegularExpressions;
-
 namespace SpreadsheetEngine;
 
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// The spreadsheet class that will serve as a container for a 2D array of cells. It will also serve
@@ -18,7 +17,7 @@ public class Spreadsheet
     /// The 2D array of cells to represent the cells of the spreadsheet.
     /// </summary>
     // ReSharper disable once InconsistentNaming (conflicts with stylecop)
-    private Cell?[,] cells;
+    private readonly Cell?[,] cells;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
@@ -103,10 +102,10 @@ public class Spreadsheet
         string cellReferencePattern = "([A-Z]+)([0-9]+)";
 
         // Assign the reference to a Regex instance
-        Regex cellRefernceRegex = new Regex(cellReferencePattern);
+        Regex cellReferenceRegex = new Regex(cellReferencePattern);
 
         // Match the input against the reference Regex
-        Match match = cellRefernceRegex.Match(cellReference);
+        Match match = cellReferenceRegex.Match(cellReference);
 
         // Regex for reference is matched
         if (match.Success)
@@ -159,7 +158,6 @@ public class Spreadsheet
 
         protected override void SetValue(string newValue)
         {
-            // Placeholder implementation
             this.value = newValue;
         }
     }
