@@ -13,6 +13,7 @@ public class Spreadsheet
     /// <summary>
     /// The 2D array of cells to represent the cells of the spreadsheet.
     /// </summary>
+    // ReSharper disable once InconsistentNaming (conflicts with stylecop)
     private Cell?[,] cells;
 
     /// <summary>

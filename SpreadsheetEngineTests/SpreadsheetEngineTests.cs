@@ -48,7 +48,6 @@ public class SpreadsheetEngineTests
         // Arrange
         const int rowCount = 0;
         const int columnCount = 0;
-        var initialValue = string.Empty;
 
         // Act
         var testSpreadsheet = new Spreadsheet(rowCount, columnCount);
@@ -70,7 +69,6 @@ public class SpreadsheetEngineTests
         // Arrange
         const int rowCount = -2;
         const int columnCount = -13;
-        var initialValue = string.Empty;
 
         // Act & Assert
         Assert.Throws<OverflowException>(() =>
