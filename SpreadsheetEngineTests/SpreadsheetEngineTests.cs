@@ -9,7 +9,7 @@ using SpreadsheetEngine;
 /// <summary>
 /// Class to contain the tests for the SpreadsheetEngine functionality tests.
 /// </summary>
-public class SpreadsheetEngineTests
+internal class SpreadsheetEngineTests
 {
     /// <summary>
     /// Tests the proper initialization of a spreadsheet.
@@ -76,5 +76,50 @@ public class SpreadsheetEngineTests
             // The initialization of the Cell array with negative parameters should throw an OverflowException
             var spreadsheet = new Spreadsheet(rowCount, columnCount);
         });
+    }
+
+    /// <summary>
+    /// Tests cell value update with plaintext text input (no expression evaluation).
+    /// </summary>
+    [Test]
+    public void SpreadsheetCellUpdatePlainText()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 1);
+        var cell = spreadsheet.GetCell(0, 0);
+
+        // Act and Assert
+        Assert.That(cell, Is.Not.Null);
+        if (cell == null)
+        {
+            return;
+        }
+
+        // Value should update to become the text inputted
+        cell.Text = "Hello";
+        Assert.That(cell.Value, Is.EqualTo("Hello"));
+    }
+
+    /// <summary>
+    /// Tests cell value update with same plaintext text input as current value (no expression evaluation).
+    /// </summary>
+    [Test]
+    public void SpreadsheetCellUpdateSamePlainText()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 1);
+        var cell = spreadsheet.GetCell(0, 0);
+
+        // Act and Assert
+        Assert.That(cell, Is.Not.Null);
+        if (cell == null)
+        {
+            return;
+        }
+
+        // The value should not change when text is set to the same as current value
+        var originalValue = cell.Value;
+        cell.Text = originalValue;
+        Assert.That(cell.Value, Is.EqualTo(originalValue));
     }
 }
