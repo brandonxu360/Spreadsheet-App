@@ -25,6 +25,9 @@ public class Spreadsheet
     /// <param name="columnCount">The number of columns in the spreadsheet.</param>
     public Spreadsheet(int rowCount, int columnCount)
     {
+        this.RowCount = rowCount;
+        this.ColumnCount = columnCount;
+
         // Initialize the 2D array of cells according to the provided dimensions
         this.cells = new Cell[rowCount, columnCount];
 
@@ -43,6 +46,16 @@ public class Spreadsheet
             }
         }
     }
+
+    /// <summary>
+    /// Gets the number of columns in the spreadsheet.
+    /// </summary>
+    public int ColumnCount { get; }
+
+    /// <summary>
+    /// Gets the number of rows in the spreadsheet.
+    /// </summary>
+    public int RowCount { get; }
 
     /// <summary>
     /// Returns the cell of at the specified column and row index.
@@ -65,9 +78,47 @@ public class Spreadsheet
     {
         if (sender is Cell cell && e?.PropertyName == nameof(Cell.Text))
         {
-            // When the text property changes, update the value property of the cell
-            cell.Value = cell.Text;
+            // Expression
+            if (cell.Text.StartsWith('='))
+            {
+                cell.Value = this.EvaluateExpression(cell.Text);
+            }
+
+            // Plaintext
+            else
+            {
+                cell.Value = cell.Text;
+            }
         }
+    }
+
+    private string EvaluateExpression(string expression)
+    {
+        // Extract the cell reference from the text (e.g., "=A5" -> "A5")
+        string cellReference = expression.Substring(1); // Remove the '='
+
+        // Assuming the cell reference is in the format "A5" where 'A' is the column letter and '5' is the row number
+        int columnIndex = cellReference[0] - 'A'; // Convert the column letter to a zero-based index
+        int rowIndex = int.Parse(cellReference.Substring(1)) - 1; // Parse the row number
+
+        // Check that reference is valid
+        if (rowIndex >= 0 || rowIndex < this.RowCount || columnIndex >= 0 || columnIndex < this.ColumnCount)
+        {
+            // Get the referenced cell from the spreadsheet
+            Cell? referencedCell = this.GetCell(rowIndex, columnIndex);
+
+            // If the referenced cell is not null, return the value of this cell to the value of the referenced cell
+            if (referencedCell != null)
+            {
+                return referencedCell.Value;
+            }
+
+            // Return the original expression if the referenced cell cannot be found
+            return expression;
+        }
+
+        // Return original expression if reference is invalid
+        return expression;
     }
 
     private class SpreadsheetCell : Cell

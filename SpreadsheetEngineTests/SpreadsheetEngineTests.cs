@@ -20,7 +20,7 @@ internal class SpreadsheetEngineTests
     {
         // Arrange
         const int rowCount = 5;
-        const int columnCount = 5;
+        const int columnCount = 6;
         var initialValue = string.Empty;
 
         // Act
@@ -169,7 +169,7 @@ internal class SpreadsheetEngineTests
         // Act
 
         // Set A2 to reference itself (A2) through text
-        cellA2.Text = "=A2";
+        cellA2.Text = "=B1";
 
         // Assert
 
