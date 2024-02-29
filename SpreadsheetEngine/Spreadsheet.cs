@@ -47,10 +47,10 @@ public class Spreadsheet
     /// <summary>
     /// Returns the cell of at the specified column and row index.
     /// </summary>
-    /// <param name="columnIndex">The column index of the cell.</param>
     /// <param name="rowIndex">The row index of the cell.</param>
+    /// <param name="columnIndex">The column index of the cell.</param>
     /// <returns>The Cell object at the column and cell index.</returns>
-    public Cell? GetCell(int columnIndex, int rowIndex)
+    public Cell? GetCell(int rowIndex, int columnIndex)
     {
         return this.cells[rowIndex, columnIndex] ?? null;
     }
