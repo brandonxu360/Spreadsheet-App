@@ -12,9 +12,22 @@
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <DataGrid Name="SpreadsheetDataGrid" AutoGenerateColumns="False" RowHeaderWidth="40" HorizontalScrollBarVisibility="Auto"
+              VerticalScrollBarVisibility="Auto" ItemsSource="{Binding SpreadsheetData}" LoadingRow="DataGrid_LoadingRow" HeadersVisibility="All" >
+        <DataGrid.Styles>
+            <!-- Add bottom lines to row headers -->
+            <Style Selector="DataGridRowHeader">
+                <Setter Property="AreSeparatorsVisible" Value="True" />
+            </Style>
+            <!-- Add bottom and right lines to grid cells-->
+            <Style Selector="DataGridCell /template/ ContentPresenter">
+                <Setter Property="BorderThickness" Value="0,0,1,1" />
+                <Setter Property="BorderBrush" Value="#33000000" />
+            </Style>
+        </DataGrid.Styles>
+    </DataGrid>
 
 </Window>

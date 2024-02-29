@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System.Text.RegularExpressions;
+
 namespace SpreadsheetEngine;
 
 using System.ComponentModel;
@@ -79,7 +81,7 @@ public class Spreadsheet
         if (sender is Cell cell && e?.PropertyName == nameof(Cell.Text))
         {
             // Expression
-            if (cell.Text.StartsWith('='))
+            if (cell.Text.StartsWith('=') && cell.Text.Length > 1)
             {
                 cell.Value = this.EvaluateExpression(cell.Text);
             }
@@ -97,27 +99,49 @@ public class Spreadsheet
         // Extract the cell reference from the text (e.g., "=A5" -> "A5")
         string cellReference = expression.Substring(1); // Remove the '='
 
-        // Assuming the cell reference is in the format "A5" where 'A' is the column letter and '5' is the row number
-        int columnIndex = cellReference[0] - 'A'; // Convert the column letter to a zero-based index
-        int rowIndex = int.Parse(cellReference.Substring(1)) - 1; // Parse the row number
+        // Define the cell reference pattern as 1+ uppercase followed by 1+ digits
+        string cellReferencePattern = "([A-Z]+)([0-9]+)";
 
-        // Check that reference is valid
-        if (rowIndex >= 0 || rowIndex < this.RowCount || columnIndex >= 0 || columnIndex < this.ColumnCount)
+        // Assign the reference to a Regex instance
+        Regex cellRefernceRegex = new Regex(cellReferencePattern);
+
+        // Match the input against the reference Regex
+        Match match = cellRefernceRegex.Match(cellReference);
+
+        // Regex for reference is matched
+        if (match.Success)
         {
-            // Get the referenced cell from the spreadsheet
-            Cell? referencedCell = this.GetCell(rowIndex, columnIndex);
+            // Extract the column and row indices from the matched groups
+            string column = match.Groups[1].Value;
+            int rowIndex = int.Parse(match.Groups[2].Value) - 1; // Adjust for 0-based indexing
 
-            // If the referenced cell is not null, return the value of this cell to the value of the referenced cell
-            if (referencedCell != null)
+            // Convert the column letters to a zero-based index
+            int columnIndex = 0;
+            foreach (char c in column)
             {
-                return referencedCell.Value;
+                columnIndex *= 26; // Multiply by 26 (number of letters in the alphabet)
+                columnIndex += c - 'A' + 1; // Add the numerical value of the letter
             }
 
-            // Return the original expression if the referenced cell cannot be found
-            return expression;
+            columnIndex--; // Adjust for 0-based indexing
+
+            // Simply return the original expression if the reference is invalid
+            if (rowIndex < 0 || rowIndex >= this.RowCount || columnIndex < 0 || columnIndex >= this.ColumnCount)
+            {
+                return expression;
+            }
+
+            // If the reference is valid, retrieve the cell based on the calculated indices
+            Cell? cell = this.GetCell(rowIndex, columnIndex);
+
+            // Return the value of the referenced cell if it exists
+            if (cell != null)
+            {
+                return cell.Value;
+            }
         }
 
-        // Return original expression if reference is invalid
+        // Return original expression if reference regex not matched
         return expression;
     }
 
