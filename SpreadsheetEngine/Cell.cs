@@ -4,8 +4,11 @@
 
 namespace SpreadsheetEngine;
 
+using System.ComponentModel;
+
 // ReSharper disable InconsistentNaming (stylecop conflicts with IDE suggestions)
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// The abstract Cell class to represent a cell in a grid.
@@ -14,7 +17,7 @@ using System.Diagnostics.CodeAnalysis;
     "StyleCop.CSharp.MaintainabilityRules",
     "SA1401:Fields should be private",
     Justification = "Assignment calls for protected fields; text and value should be accessible to children classes")]
-public abstract class Cell
+public abstract class Cell : INotifyPropertyChanged
 {
     /// <summary>
     /// The encapsulated text of the cell (input of the cell).
@@ -41,6 +44,11 @@ public abstract class Cell
     }
 
     /// <summary>
+    /// The event handler for the cell class.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
     /// Gets the row index of the cell in the grid.
     /// </summary>
     public int RowIndex { get; }
@@ -59,8 +67,8 @@ public abstract class Cell
 
         set
         {
-            // Placeholder implementation
-            this.text = value;
+            // Call OnPropertyChanged if text changes
+            this.SetField(ref this.text, value);
         }
     }
 
@@ -80,4 +88,34 @@ public abstract class Cell
     /// </summary>
     /// <param name="newValue">The new value to set the value attribute to.</param>
     protected abstract void SetValue(string newValue);
+
+    /// <summary>
+    /// Invokes the event handler when a property is changed.
+    /// </summary>
+    /// <param name="propertyName">The name of the property being changed.</param>
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    /// <summary>
+    /// Checks if the field is being set to a different value, sets the field and calls OnPropertyChanged if so.
+    /// </summary>
+    /// <param name="field">The reference to field being assigned a new value.</param>
+    /// <param name="value">The new value.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <typeparam name="T">The type of the field.</typeparam>
+    /// <returns>Bool indicating if the field was changed.</returns>
+    // ReSharper disable once ParameterHidesMember
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value))
+        {
+            return false;
+        }
+
+        field = value;
+        this.OnPropertyChanged(propertyName);
+        return true;
+    }
 }
