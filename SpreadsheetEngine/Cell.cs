@@ -107,7 +107,7 @@ public abstract class Cell : INotifyPropertyChanged
     /// <typeparam name="T">The type of the field.</typeparam>
     /// <returns>Bool indicating if the field was changed.</returns>
     // ReSharper disable once ParameterHidesMember
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value))
         {

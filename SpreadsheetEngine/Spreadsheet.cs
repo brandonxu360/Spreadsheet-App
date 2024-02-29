@@ -2,9 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.ComponentModel;
-
 namespace SpreadsheetEngine;
+
+using System.ComponentModel;
 
 /// <summary>
 /// The spreadsheet class that will serve as a container for a 2D array of cells. It will also serve
@@ -36,9 +36,9 @@ public class Spreadsheet
                 this.cells[i, j] = new SpreadsheetCell(i, j);
                 if (this.cells[i, j] != null)
                 {
-                    #pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                     this.cells[i, j].PropertyChanged += this.OnCellPropertyChanged;
-                    #pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 }
             }
         }
@@ -53,6 +53,21 @@ public class Spreadsheet
     public Cell? GetCell(int columnIndex, int rowIndex)
     {
         return this.cells[rowIndex, columnIndex] ?? null;
+    }
+
+    /// <summary>
+    /// Executed when a cell property is changed, will call the cell Value setter which has
+    /// its own implementation of setting the cell value.
+    /// </summary>
+    /// <param name="sender">Cell that had its property changed.</param>
+    /// <param name="e">PropertyChanged event arguments.</param>
+    private void OnCellPropertyChanged(object? sender, PropertyChangedEventArgs? e)
+    {
+        if (sender is Cell cell && e?.PropertyName == nameof(Cell.Text))
+        {
+            // When the text property changes, update the value property of the cell
+            cell.Value = cell.Text;
+        }
     }
 
     private class SpreadsheetCell : Cell
@@ -71,18 +86,6 @@ public class Spreadsheet
         {
             // Placeholder implementation
             this.value = newValue;
-        }
-    }
-
-    protected virtual void OnCellPropertyChanged(object? sender, PropertyChangedEventArgs? e)
-    {
-        if (sender is not Cell cell)
-        {
-            return;
-        }
-        else
-        {
-            cell.Value = cell.Text;
         }
     }
 }
