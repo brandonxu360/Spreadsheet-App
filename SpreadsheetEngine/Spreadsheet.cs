@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System.ComponentModel;
+
 namespace SpreadsheetEngine;
 
 /// <summary>
@@ -32,6 +34,12 @@ public class Spreadsheet
             for (int j = 0; j < columnCount; j++)
             {
                 this.cells[i, j] = new SpreadsheetCell(i, j);
+                if (this.cells[i, j] != null)
+                {
+                    #pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    this.cells[i, j].PropertyChanged += this.OnCellPropertyChanged;
+                    #pragma warning restore CS8602 // Dereference of a possibly null reference.
+                }
             }
         }
     }
@@ -63,6 +71,18 @@ public class Spreadsheet
         {
             // Placeholder implementation
             this.value = newValue;
+        }
+    }
+
+    protected virtual void OnCellPropertyChanged(object? sender, PropertyChangedEventArgs? e)
+    {
+        if (sender is not Cell cell)
+        {
+            return;
+        }
+        else
+        {
+            cell.Value = cell.Text;
         }
     }
 }
