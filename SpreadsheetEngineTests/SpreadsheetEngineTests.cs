@@ -179,12 +179,12 @@ internal class SpreadsheetEngineTests
     }
 
     /// <summary>
-    /// Tests cell value update with reference text input to itself when the reference is two characters and value initially empty (evaluate reference to same cell).
+    /// Tests cell value update with reference text input to itself when the reference is two characters (short) and value initially empty (evaluate reference to same cell).
     /// For example, cell at B3 with value "" referencing B3
     /// This test case was created due to strange behavior noticed when using the UI.
     /// </summary>
     [Test]
-    public void SpreadsheetCellUpdateReferenceSelfTwoCharAndEmpty()
+    public void SpreadsheetCellUpdateReferenceSelfShortReferenceAndEmpty()
     {
         // Arrange
         var spreadsheet = new Spreadsheet(1, 2);
