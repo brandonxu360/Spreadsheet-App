@@ -38,6 +38,8 @@ public class Spreadsheet
             for (int j = 0; j < columnCount; j++)
             {
                 this.cells[i, j] = new SpreadsheetCell(i, j);
+
+                // Make sure the cell was successfully created and nonnull
                 if (this.cells[i, j] != null)
                 {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.

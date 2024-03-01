@@ -77,6 +77,11 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Initialize Spreadsheet object with 26 columns and 50 rows and reference the cells in
+    /// the SpreadsheetData as well.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Throw when the null is returned by GetCell.</exception>
     private void InitializeSpreadsheet()
     {
         const int rowCount = 50;
