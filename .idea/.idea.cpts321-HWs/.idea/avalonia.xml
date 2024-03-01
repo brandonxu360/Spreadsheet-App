@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="Spreadsheet_Brandon_Xu/App.axaml" value="Spreadsheet_Brandon_Xu/Spreadsheet_Brandon_Xu.csproj" />
+        <entry key="Spreadsheet_Brandon_Xu/Views/MainWindow.axaml" value="Spreadsheet_Brandon_Xu/Spreadsheet_Brandon_Xu.csproj" />
+      </map>
+    </option>
+  </component>
+</project>
