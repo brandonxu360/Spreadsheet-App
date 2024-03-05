@@ -8,8 +8,9 @@ using System.Diagnostics;
 using SpreadsheetEngine;
 
 /// <summary>
-/// Class to contain the tests for the SpreadsheetEngine functionality tests.
+/// Class to unit test the Spreadsheet functionality.
 /// </summary>
+[TestFixture]
 internal class SpreadsheetTests
 {
     /// <summary>
