@@ -1,4 +1,4 @@
-// <copyright file="SpreadsheetEngineTests.cs" company="PlaceholderCompany">
+// <copyright file="SpreadsheetTests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -10,7 +10,7 @@ using SpreadsheetEngine;
 /// <summary>
 /// Class to contain the tests for the SpreadsheetEngine functionality tests.
 /// </summary>
-internal class SpreadsheetEngineTests
+internal class SpreadsheetTests
 {
     /// <summary>
     /// Tests the proper initialization of a spreadsheet.
