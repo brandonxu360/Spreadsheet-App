@@ -30,7 +30,6 @@ public class ValueNode : IExpTreeNode
     /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
     public double Evaluate()
     {
-        // TODO: Implement evaluate for value node
-        throw new NotImplementedException();
+        return this.value;
     }
 }

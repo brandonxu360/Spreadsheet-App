@@ -37,7 +37,8 @@ public class VariableNode : IExpTreeNode
     /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
     public double Evaluate()
     {
-        // TODO: Implement evaluate for VariableNode
-        throw new NotImplementedException();
+        // Try to get the value and return it if the key-value pair exists in the dictionary
+        // Otherwise return the default value of 0
+        return this.varDict.GetValueOrDefault(this.name, 0);
     }
 }
