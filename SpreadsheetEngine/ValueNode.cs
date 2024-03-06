@@ -7,7 +7,7 @@ namespace SpreadsheetEngine;
 /// <summary>
 /// Node class to represent a constant value.
 /// </summary>
-public class ValueNode : IExpTreeNode
+public class ValueNode : ExpTreeNode
 {
     /// <summary>
     /// Represents the value of the ValueNode.
@@ -28,7 +28,7 @@ public class ValueNode : IExpTreeNode
     /// </summary>
     /// <returns>The double value of the ValueNode.</returns>
     /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
-    public double Evaluate()
+    public override double Evaluate()
     {
         return this.value;
     }

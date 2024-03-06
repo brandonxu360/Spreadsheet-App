@@ -7,7 +7,7 @@ namespace SpreadsheetEngine;
 /// <summary>
 /// Node class to represent a variable (value assigned to a name).
 /// </summary>
-public class VariableNode : IExpTreeNode
+public class VariableNode : ExpTreeNode
 {
     /// <summary>
     /// The name of the variable.
@@ -35,7 +35,7 @@ public class VariableNode : IExpTreeNode
     /// </summary>
     /// <returns>The double value associated with the variable name.</returns>
     /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
-    public double Evaluate()
+    public override double Evaluate()
     {
         // Try to get the value and return it if the key-value pair exists in the dictionary
         // Otherwise return the default value of 0

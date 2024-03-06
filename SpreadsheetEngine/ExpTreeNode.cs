@@ -7,11 +7,11 @@ namespace SpreadsheetEngine;
 /// <summary>
 /// The base class for all expression tree nodes.
 /// </summary>
-internal interface IExpTreeNode
+public abstract class ExpTreeNode
 {
     /// <summary>
     /// Evaluates the value of the node.
     /// </summary>
     /// <returns>The double value of the node.</returns>
-    double Evaluate();
+    public abstract double Evaluate();
 }
