@@ -16,7 +16,6 @@ public class AdditionNode : OperatorNode
     /// Returns the sum of the left and right children node values.
     /// </summary>
     /// <returns>The double sum of the left and right children node values.</returns>
-    /// <exception cref="NotImplementedException">Method is not implemented yet.</exception>
     public override double Evaluate()
     {
         Debug.Assert(this.LeftChild != null, nameof(this.LeftChild) + " != null");
