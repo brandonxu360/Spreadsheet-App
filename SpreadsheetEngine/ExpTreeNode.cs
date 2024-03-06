@@ -1,4 +1,4 @@
-// <copyright file="IExpTreeNode.cs" company="PlaceholderCompany">
+// <copyright file="ExpTreeNode.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 

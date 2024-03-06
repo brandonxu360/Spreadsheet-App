@@ -1,6 +1,10 @@
-using System.Diagnostics;
+// <copyright file="SubtractionNode.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace SpreadsheetEngine;
+
+using System.Diagnostics;
 
 /// <summary>
 /// Node class to represent and apply the subtraction operator.
