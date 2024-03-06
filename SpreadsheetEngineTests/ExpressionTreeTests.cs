@@ -183,4 +183,34 @@ internal class ExpressionTreeTests
         // Assert
         return result;
     }
+
+    /// <summary>
+    /// Tests the construction of ExpressionTree in exceptional cases.
+    /// </summary>
+    /// <param name="expression">The string expression used to build the expression tree.</param>
+    [Test]
+    [TestCase("+")] // Expression of only a single add operator missing both operands
+    [TestCase("2+")] // Expression with an add operator missing the second operand
+    public void ExpressionTreeConstructionExceptional(string expression)
+    {
+        Assert.That(
+            () => new ExpressionTree(expression),
+            Throws.TypeOf<System.Exception>());
+    }
+
+    /// <summary>
+    /// Tests the evaluate method of ExpressionTree in normal cases.
+    /// </summary>
+    /// <param name="expression">The string expression used to build the expression tree.</param>
+    /// <returns>The double evaluated value of the expression.</returns>
+    [Test]
+    [TestCase("3+7", ExpectedResult = 10)] // Expression with a single add operator
+    [TestCase("3+7+2+1", ExpectedResult = 13)] // Expression with multiple add operators
+    [TestCase("3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
+    [TestCase("3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
+    public double ExpressionTreeEvaluateTestNormal(string expression)
+    {
+        ExpressionTree exp = new ExpressionTree(expression);
+        return exp.Evaluate();
+    }
 }
