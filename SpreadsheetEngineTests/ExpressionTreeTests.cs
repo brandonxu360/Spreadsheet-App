@@ -2,8 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Diagnostics;
-
 namespace SpreadsheetEngineTests;
 
 using System.Reflection;
@@ -198,7 +196,7 @@ internal class ExpressionTreeTests
     {
         Assert.That(
             () => new ExpressionTree(expression),
-            Throws.TypeOf<System.Exception>());
+            Throws.TypeOf<Exception>());
     }
 
     /// <summary>
@@ -288,10 +286,10 @@ internal class ExpressionTreeTests
             return;
         }
 
-        var infixExpressions = new Dictionary<string, List<string>>
+        var infixExpressions = new Dictionary<List<string>, List<string>>
         {
-            { "3+7", ["3", "7", "+"] },
-            { "3-2-8-8", ["3", "2", "-", "8", "-", "8", "-"] },
+            { ["3", "+", "7"], ["3", "7", "+"] },
+            { ["3", "-", "2", "-", "8", "-", "8"], ["3", "2", "-", "8", "-", "8", "-"] },
 
             // Precedence not to be implemented yet
             /* { "5*4+2", ["5", "4", "*", "2", "+"] },

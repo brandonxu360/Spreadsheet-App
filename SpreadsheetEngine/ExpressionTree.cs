@@ -10,20 +10,22 @@ namespace SpreadsheetEngine;
 public class ExpressionTree
 {
     /// <summary>
-    /// Root of the tree.
-    /// </summary>
-    private ExpTreeNode? root;
-
-    /// <summary>
     /// Dictionary mapping operator symbols to OperatorNode types.
     /// </summary>
-    private Dictionary<char, Type> operatorNodeTypes = new Dictionary<char, Type>()
+    // ReSharper disable once InconsistentNaming
+    private readonly Dictionary<string, Type> operatorNodeTypes = new Dictionary<string, Type>()
     {
         { AdditionNode.OperatorSymbol, typeof(AdditionNode) },
         { SubtractionNode.OperatorSymbol, typeof(SubtractionNode) },
         { MultiplicationNode.OperatorSymbol, typeof(MultiplicationNode) },
         { DivisionNode.OperatorSymbol, typeof(DivisionNode) },
     };
+
+    /// <summary>
+    /// Root of the tree.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private ExpTreeNode? root;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExpressionTree"/> class.
@@ -108,19 +110,20 @@ public class ExpressionTree
             }
 
             // Operator encountered
-            else if (this.operatorNodeTypes.ContainsKey(c))
+            else if (this.operatorNodeTypes.ContainsKey(c.ToString()))
             {
                 // Add whitespace as token
                 tokenList.Add(c.ToString());
                 i++;
             }
 
-            // Variable/value encounter
+            // Variable or value encounter
             else
             {
                 // Read characters until whitespace, operator, or end of expression is encountered
                 var start = i;
-                while (i < expression.Length && !this.operatorNodeTypes.ContainsKey(expression[i]) && !char.IsWhiteSpace(expression[i]))
+                while (i < expression.Length && !this.operatorNodeTypes.ContainsKey(expression[i].ToString()) &&
+                       !char.IsWhiteSpace(expression[i]))
                 {
                     i++;
                 }
@@ -133,14 +136,44 @@ public class ExpressionTree
     }
 
     /// <summary>
-    /// Converts a tokenized infix expression to postfix.
+    /// Converts a tokenized infix expression to postfix. Only supports expressions of one operator type.
     /// </summary>
     /// <param name="tokenizedExpression">A list of string tokens representing an expression in infix order.</param>
     /// <returns>A list of string tokens representing the expression in postfix order.</returns>
-    /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
     private List<string> ConvertInfixToPostfix(List<string> tokenizedExpression)
     {
-        throw new NotImplementedException();
+        var outputList = new List<string>();
+        var operatorStack = new Stack<string>();
+
+        // Iterate over each token in the tokenized expression
+        foreach (var token in tokenizedExpression)
+        {
+            // If the token is an operator
+            if (this.operatorNodeTypes.ContainsKey(token))
+            {
+                if (operatorStack.Count > 0)
+                {
+                    // Push the operators off the operator stack onto the output stack if operators are on the operator stack
+                    outputList.Add(operatorStack.Pop());
+                }
+
+                operatorStack.Push(token);
+            }
+
+            // If the token is a number or variable, add it to the output queue
+            else
+            {
+                outputList.Add(token);
+            }
+        }
+
+        // Catch the last operator on the operator stack
+        if (operatorStack.Count > 0)
+        {
+            outputList.Add(operatorStack.Pop());
+        }
+
+        return outputList;
     }
 
     /// <summary>

@@ -2,6 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+// Conflicts with assignment access specifications
+#pragma warning disable SA1401
+
 namespace SpreadsheetEngine;
 
 /// <summary>
