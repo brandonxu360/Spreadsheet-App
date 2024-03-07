@@ -28,17 +28,34 @@ public class ExpressionTree
     /// <summary>
     /// Initializes a new instance of the <see cref="ExpressionTree"/> class.
     /// </summary>
+    public ExpressionTree()
+    {
+        const string expression = "A1+B1+C1"; // Have a default expression
+
+        // Tokenize the expression
+        var tokenizedExpression = this.Tokenize(expression);
+
+        // TODO: Convert the tokenized expression to postfix order
+        // var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
+
+        // TODO: Build tree using the tokenized postfix expression and assign the node returned as the root
+        // this.root = this.BuildExpressionTree(postFixTokenizedExpression);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ExpressionTree"/> class.
+    /// </summary>
     /// <param name="expression">The expression to construct the tree from.</param>
     public ExpressionTree(string expression)
     {
         // Tokenize the expression
         var tokenizedExpression = this.Tokenize(expression);
 
-        // Convert the tokenized expression to postfix order
-        var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
+        // TODO: Convert the tokenized expression to postfix order
+        // var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
 
-        // Build tree using the tokenized postfix expression and assign the node returned as the root
-        this.root = this.BuildExpressionTree(postFixTokenizedExpression);
+        // TODO: Build tree using the tokenized postfix expression and assign the node returned as the root
+        // this.root = this.BuildExpressionTree(postFixTokenizedExpression);
     }
 
     /// <summary>
@@ -74,7 +91,6 @@ public class ExpressionTree
     /// </summary>
     /// <param name="expression">The string expression.</param>
     /// <returns>A list of string tokens, which could represent values or operators.</returns>
-    /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
     private List<string> Tokenize(string expression)
     {
         throw new NotImplementedException();

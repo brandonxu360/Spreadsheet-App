@@ -2,8 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
+
 namespace SpreadsheetEngineTests;
 
+using System.Reflection;
 using SpreadsheetEngine;
 
 /// <summary>
@@ -210,7 +213,61 @@ internal class ExpressionTreeTests
     [TestCase("3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
     public double ExpressionTreeEvaluateTestNormal(string expression)
     {
-        ExpressionTree exp = new ExpressionTree(expression);
+        var exp = new ExpressionTree(expression);
         return exp.Evaluate();
+    }
+
+    /// <summary>
+    /// Tests the private tokenize method of ExpressionTree in a normal case with operators and values.
+    /// </summary>
+    [Test]
+    public void TokenizePrivateMethodTestNormal()
+    {
+        // Arrange
+        const string expression = "3+7+1";
+        var expectedTokens = new List<string> { "3", "+", "7", "+", "1" };
+
+        var expressionTree = new ExpressionTree(); // Object instance to call the private method
+        var tokenizeMethod =
+            typeof(ExpressionTree).GetMethod("Tokenize", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (tokenizeMethod == null)
+        {
+            Assert.Fail("Tokenize method not found");
+            return;
+        }
+
+        // Act
+        var result = (List<string>)tokenizeMethod.Invoke(expressionTree, new object[] { expression })!;
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedTokens));
+    }
+
+    /// <summary>
+    /// Tests the private tokenize method of ExpressionTree in a normal case with operators, values, and multi character variable names.
+    /// </summary>
+    [Test]
+    public void TokenizePrivateMethodTestNormalWithVariables()
+    {
+        // Arrange
+        const string expression = "3+7+hello+2+b";
+        var expectedTokens = new List<string> { "3", "+", "7", "+", "hello", "+", "2", "+", "b" };
+
+        var expressionTree = new ExpressionTree(); // Object instance to call the private method
+        var tokenizeMethod =
+            typeof(ExpressionTree).GetMethod("Tokenize", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (tokenizeMethod == null)
+        {
+            Assert.Fail("Tokenize method not found");
+            return;
+        }
+
+        // Act
+        var result = (List<string>)tokenizeMethod.Invoke(expressionTree, new object[] { expression })!;
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedTokens));
     }
 }
