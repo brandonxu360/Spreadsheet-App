@@ -14,7 +14,12 @@ public class DivisionNode : OperatorNode
     /// <summary>
     /// Character symbol to identify/represent division.
     /// </summary>
-    public static char OperatorSymbol = '/';
+    public static readonly char OperatorSymbol = '/';
+
+    /// <summary>
+    /// The operator precedence level (according to java rules)
+    /// </summary>
+    public static readonly int Precedence = 12;
 
     /// <summary>
     /// Returns the result of the left child node value divided by the right child node value.

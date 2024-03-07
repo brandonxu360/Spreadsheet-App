@@ -14,7 +14,12 @@ public class AdditionNode : OperatorNode
     /// <summary>
     /// Character symbol to identify/represent addition.
     /// </summary>
-    public static char OperatorSymbol = '+';
+    public static readonly char OperatorSymbol = '+';
+
+    /// <summary>
+    /// The operator precedence level (according to java rules)
+    /// </summary>
+    public static readonly int Precedence = 11;
 
     /// <summary>
     /// Returns the sum of the left and right children node values.

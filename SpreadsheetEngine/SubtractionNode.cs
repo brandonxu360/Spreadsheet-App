@@ -14,7 +14,12 @@ public class SubtractionNode : OperatorNode
     /// <summary>
     /// Character symbol to identify/represent subtraction.
     /// </summary>
-    public static char OperatorSymbol = '-';
+    public static readonly char OperatorSymbol = '-';
+
+    /// <summary>
+    /// The operator precedence level (according to java rules)
+    /// </summary>
+    public static readonly int Precedence = 11;
 
     /// <summary>
     /// Returns the difference of the left and right children node values.
