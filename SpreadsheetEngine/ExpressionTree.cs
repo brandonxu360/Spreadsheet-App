@@ -31,71 +31,14 @@ public class ExpressionTree
     /// <param name="expression">The expression to construct the tree from.</param>
     public ExpressionTree(string expression)
     {
-        // TODO: Modularize construction (tokenize, postfix -> infix, build tree) and create test cases for each step.
-        // Create the stacks to nodes and operators as the expression tree is being created
-        var ops = new Stack<char>();
-        var nodes = new Stack<ExpTreeNode>();
+        // Tokenize the expression
+        var tokenizedExpression = this.Tokenize(expression);
 
-        // Iterate through each character in the expression
-        foreach (var c in expression)
-        {
-            // If the character is a digit (value)
-            if (c is >= '0' and <= '9')
-            {
-                // Push a ValueNode containing the value onto the node stack
-                nodes.Push(new ValueNode(char.GetNumericValue(c)));
-            }
+        // Convert the tokenized expression to postfix order
+        var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
 
-            // If the character is an operator symbol (+, -, *, /)
-            else if (this.operatorNodeTypes.ContainsKey(c))
-            {
-                // If an operator of equal or higher precedence is on the stack, append it to the top of the tree
-                if (ops.Count > 0)
-                {
-                    // Pop the operator off the stack
-                    var op = ops.Pop();
-                    OperatorNode? newNode = null;
-
-                    // Create a new instance of the corresponding operator node type
-                    newNode = Activator.CreateInstance(this.operatorNodeTypes[op]) as OperatorNode;
-
-                    // Append the new operator node to the top of the tree by assigning the top nodes on the stack as children
-                    if (newNode != null)
-                    {
-                        newNode.RightChild = nodes.Pop();
-                        newNode.LeftChild = nodes.Pop();
-                        nodes.Push(newNode);
-                    }
-                }
-
-                // Push the new operator onto the stack
-                ops.Push(c);
-            }
-        }
-
-        // Finalize the tree (last two nodes into one for the root)
-        while (nodes.Count > 1)
-        {
-            var op = ops.Pop();
-            OperatorNode? newNode = null;
-
-            // Check if the operator symbol exists in the dictionary
-            if (this.operatorNodeTypes.TryGetValue(op, value: out var type))
-            {
-                // Create a new instance of the corresponding node type
-                newNode = Activator.CreateInstance(type) as OperatorNode;
-            }
-
-            // Append the new operator node to the top of the tree by assigning the top nodes on the stack as children
-            if (newNode != null)
-            {
-                newNode.RightChild = nodes.Pop();
-                newNode.LeftChild = nodes.Pop();
-                nodes.Push(newNode);
-            }
-        }
-
-        this.root = nodes.Pop();
+        // Build tree using the tokenized postfix expression and assign the node returned as the root
+        this.root = this.BuildExpressionTree(postFixTokenizedExpression);
     }
 
     /// <summary>
@@ -112,17 +55,50 @@ public class ExpressionTree
     /// Evaluates the expression to a double value.
     /// </summary>
     /// <returns>Double value that the expression evaluates to.</returns>
-    /// <exception cref="NotImplementedException">Placeholder exception while the method is not implemented.</exception>
+    /// <exception cref="NotSupportedException">Evaluating an empty expression tree is not supported.</exception>
     public double Evaluate()
     {
-        var expTreeNode = this.root;
-        if (expTreeNode != null)
+        // If the root is not null, call the evaluate method of the root, which will recursively evaluate the entire tree
+        if (this.root != null)
         {
-            return expTreeNode.Evaluate();
+            return this.root.Evaluate();
         }
         else
         {
             throw new NotSupportedException();
         }
+    }
+
+    /// <summary>
+    /// Tokenizes the expression string.
+    /// </summary>
+    /// <param name="expression">The string expression.</param>
+    /// <returns>A list of string tokens, which could represent values or operators.</returns>
+    /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
+    private List<string> Tokenize(string expression)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Converts a tokenized infix expression to postfix.
+    /// </summary>
+    /// <param name="tokenizedExpression">A list of string tokens representing an expression in infix order.</param>
+    /// <returns>A list of string tokens representing the expression in postfix order.</returns>
+    /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
+    private List<string> ConvertInfixToPostfix(IEnumerable<string> tokenizedExpression)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Builds the expression tree based on the postfix tokenized expression passed in.
+    /// </summary>
+    /// <param name="postFixTokenizedExpression">A tokenized expression in postfix order.</param>
+    /// <returns>The ExpTreeNode root node of the resultant tree.</returns>
+    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
+    private ExpTreeNode BuildExpressionTree(List<string> postFixTokenizedExpression)
+    {
+        throw new NotImplementedException();
     }
 }
