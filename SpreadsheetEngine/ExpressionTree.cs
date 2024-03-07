@@ -93,7 +93,43 @@ public class ExpressionTree
     /// <returns>A list of string tokens, which could represent values or operators.</returns>
     private List<string> Tokenize(string expression)
     {
-        throw new NotImplementedException();
+        var tokenList = new List<string>();
+        var i = 0; // Iterator index
+
+        // Iterate through the entire expression
+        while (i < expression.Length)
+        {
+            var c = expression[i]; // Current character
+
+            // Whitespace encountered
+            if (char.IsWhiteSpace(c))
+            {
+                i++; // Skip whitespace
+            }
+
+            // Operator encountered
+            else if (this.operatorNodeTypes.ContainsKey(c))
+            {
+                // Add whitespace as token
+                tokenList.Add(c.ToString());
+                i++;
+            }
+
+            // Variable/value encounter
+            else
+            {
+                // Read characters until whitespace, operator, or end of expression is encountered
+                var start = i;
+                while (i < expression.Length && !this.operatorNodeTypes.ContainsKey(expression[i]) && !char.IsWhiteSpace(expression[i]))
+                {
+                    i++;
+                }
+
+                tokenList.Add(expression.Substring(start, i - start));
+            }
+        }
+
+        return tokenList;
     }
 
     /// <summary>
