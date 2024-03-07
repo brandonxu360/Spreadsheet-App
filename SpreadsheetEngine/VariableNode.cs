@@ -12,12 +12,14 @@ public class VariableNode : ExpTreeNode
     /// <summary>
     /// The name of the variable.
     /// </summary>
-    private string name;
+    // ReSharper disable once InconsistentNaming
+    private readonly string name;
 
     /// <summary>
     /// The dictionary holding the name-value pairs for the variables.
     /// </summary>
-    private Dictionary<string, double> varDict;
+    // ReSharper disable once InconsistentNaming
+    private readonly Dictionary<string, double> varDict;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="VariableNode"/> class.
