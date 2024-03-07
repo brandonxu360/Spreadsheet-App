@@ -2,32 +2,135 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-var running = true;
-
-while (running)
+namespace ExpressionTreeDemo
 {
-    Console.WriteLine("Menu:");
-    Console.WriteLine("1. Enter an expression string");
-    Console.WriteLine("2. Set a variable value");
-    Console.WriteLine("3. Evaluate expression");
-    Console.WriteLine("4. Quit");
-    Console.Write("Enter your choice: ");
+    using SpreadsheetEngine;
 
-    var choice = Console.ReadLine();
-
-    switch (choice)
+    /// <summary>
+    /// Main program of ExpressionTreeDemo.
+    /// </summary>
+    public static class Program
     {
-        case "1":
-            Console.WriteLine("Menu item 1 selected");
-            break;
-        case "2":
-            Console.WriteLine("Menu item 2 selected");
-            break;
-        case "3":
-            Console.WriteLine("Menu item 3 selected");
-            break;
-        case "4":
-            running = false;
-            break;
+        // ReSharper disable once InconsistentNaming
+        private static ExpressionTree? expressionTree;
+
+        /// <summary>
+        /// Main function of the demo program (entry point).
+        /// </summary>
+        /// <param name="args">String array of args.</param>
+        public static void Main(string[] args)
+        {
+            expressionTree = new ExpressionTree();
+            var running = true;
+
+            // Loop until the user decides to quit
+            while (running)
+            {
+                Console.WriteLine("Menu:");
+                Console.WriteLine("1. Enter an expression string");
+                Console.WriteLine("2. Set a variable value");
+                Console.WriteLine("3. Evaluate expression");
+                Console.WriteLine("4. Quit");
+                Console.Write("Enter your choice: ");
+
+                var choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        EnterExpression();
+                        break;
+                    case "2":
+                        SetVariableValue();
+                        break;
+                    case "3":
+                        EvaluateExpression();
+                        break;
+                    case "4":
+                        running = false;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please enter a number from 1 to 4.");
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a string infix expression from user input and builds the expression tree from it.
+        /// </summary>
+        private static void EnterExpression()
+        {
+            // Get string infix expression
+            Console.Write("Enter an expression: ");
+            var expression = Console.ReadLine();
+            if (expression != null && expressionTree != null)
+            {
+                // Build and set the expression tree
+                expressionTree.SetExpressionTree(expression);
+                Console.WriteLine("Expression set successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Expression was not set successfully.");
+            }
+        }
+
+        /// <summary>
+        /// Sets the variable in the variable dictionary.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Variable name was somehow null.</exception>
+        private static void SetVariableValue()
+        {
+            // Get variable name
+            Console.Write("Enter variable name: ");
+            var variableName = Console.ReadLine();
+
+            // Get variable value
+            Console.Write("Enter variable value: ");
+
+            // Try to convert the value from string to double
+            if (double.TryParse(Console.ReadLine(), out var variableValue))
+            {
+                try
+                {
+                    // Set the variable name and value in the variable dictionary
+                    expressionTree?.SetVariable(variableName ?? throw new InvalidOperationException(), variableValue);
+                    Console.WriteLine($"Variable '{variableName}' set to {variableValue} successfully.");
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid variable value. Please enter a valid number.");
+            }
+        }
+
+        /// <summary>
+        /// Evaluates the current expression tree and prints the double result.
+        /// </summary>
+        /// <exception cref="NullReferenceException">The expression tree was somehow null.</exception>
+        private static void EvaluateExpression()
+        {
+            try
+            {
+                // Catch null expressionTree
+                if (expressionTree == null)
+                {
+                    throw new NullReferenceException("expressionTree was null");
+                }
+
+                // Evaluate the expression tree and write the result to console
+                var result = expressionTree.Evaluate();
+                Console.WriteLine($"Result: {result}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
     }
 }

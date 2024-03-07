@@ -400,7 +400,7 @@ internal class ExpressionTreeTests
 
         // Assert
         Assert.That(expressionTree.VariableDict.ContainsKey(variableName));
-        Assert.AreEqual(variableValue, expressionTree.VariableDict[variableName]);
+        Assert.That(expressionTree.VariableDict[variableName], Is.EqualTo(variableValue));
     }
 
     /// <summary>
@@ -421,7 +421,7 @@ internal class ExpressionTreeTests
 
         // Assert
         Assert.That(expressionTree.VariableDict.ContainsKey(variableName));
-        Assert.AreEqual(updatedValue, expressionTree.VariableDict[variableName]);
+        Assert.That(expressionTree.VariableDict[variableName], Is.EqualTo(updatedValue));
     }
 
     /// <summary>
