@@ -138,7 +138,7 @@ public class ExpressionTree
     /// <param name="tokenizedExpression">A list of string tokens representing an expression in infix order.</param>
     /// <returns>A list of string tokens representing the expression in postfix order.</returns>
     /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
-    private List<string> ConvertInfixToPostfix(IEnumerable<string> tokenizedExpression)
+    private List<string> ConvertInfixToPostfix(List<string> tokenizedExpression)
     {
         throw new NotImplementedException();
     }

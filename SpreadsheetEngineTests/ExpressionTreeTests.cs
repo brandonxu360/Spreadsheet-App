@@ -270,4 +270,43 @@ internal class ExpressionTreeTests
         // Assert
         Assert.That(result, Is.EqualTo(expectedTokens));
     }
+
+    /// <summary>
+    /// Tests the private ConvertInfixToPostfix method of ExpressionTree in normal cases.
+    /// </summary>
+    [Test]
+    public void ConvertInfixToPostfixPrivateMethodTestNormal()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree(); // Object instance to call the private method
+        var convertInfixToPostfixMethod =
+            typeof(ExpressionTree).GetMethod("ConvertInfixToPostfix", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (convertInfixToPostfixMethod == null)
+        {
+            Assert.Fail("Tokenize method not found");
+            return;
+        }
+
+        var infixExpressions = new Dictionary<string, List<string>>
+        {
+            { "3+7", ["3", "7", "+"] },
+            { "3-2-8-8", ["3", "2", "-", "8", "-", "8", "-"] },
+
+            // Precedence not to be implemented yet
+            /* { "5*4+2", ["5", "4", "*", "2", "+"] },
+            { "5*(4+2)", ["5", "4", "2", "+", "*"] },
+            { "(5-3)*(7+2)", ["5", "3", "-", "7", "2", "+", "*"] },
+            { "3+4*2/(1-5)^2^3", ["3", "4", "2", "*", "1", "5", "-", "2", "3", "^", "^", "/", "+"] }, */
+        };
+
+        foreach (var infixExpression in infixExpressions)
+        {
+            // Act
+            var result = (List<string>)convertInfixToPostfixMethod.Invoke(expressionTree, new object[] { infixExpression.Key })!;
+
+            // Assert
+            Assert.That(result, Is.EqualTo(infixExpression.Value));
+        }
+    }
 }
