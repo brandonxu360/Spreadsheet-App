@@ -12,7 +12,8 @@ public class ValueNode : ExpTreeNode
     /// <summary>
     /// Represents the value of the ValueNode.
     /// </summary>
-    private double value;
+    // ReSharper disable once InconsistentNaming
+    private readonly double value;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueNode"/> class.

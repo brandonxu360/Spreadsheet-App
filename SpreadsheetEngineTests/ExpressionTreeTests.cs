@@ -282,7 +282,7 @@ internal class ExpressionTreeTests
 
         if (convertInfixToPostfixMethod == null)
         {
-            Assert.Fail("Tokenize method not found");
+            Assert.Fail("ConvertInfixToPostfix method not found");
             return;
         }
 
@@ -301,10 +301,80 @@ internal class ExpressionTreeTests
         foreach (var infixExpression in infixExpressions)
         {
             // Act
-            var result = (List<string>)convertInfixToPostfixMethod.Invoke(expressionTree, new object[] { infixExpression.Key })!;
+            var result =
+                (List<string>)convertInfixToPostfixMethod.Invoke(expressionTree, new object[] { infixExpression.Key })!;
 
             // Assert
             Assert.That(result, Is.EqualTo(infixExpression.Value));
         }
+    }
+
+    /// <summary>
+    /// Tests the private BuildExpressionTree method of ExpressionTree in normal cases.
+    /// </summary>
+    [Test]
+    public void BuildExpressionTreePrivateMethodTestNormal()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree(); // Object instance to call the private method
+        var buildExpressionTreeMethod =
+            typeof(ExpressionTree).GetMethod("BuildExpressionTree", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (buildExpressionTreeMethod == null)
+        {
+            Assert.Fail("BuildExpressionTree method not found");
+            return;
+        }
+
+        // Define postfix expression along with its expected expression tree
+        List<string> postfixExpression = ["5", "4", "+", "3", "+",];
+        var expectedTree = new AdditionNode()
+        {
+            LeftChild = new AdditionNode()
+            {
+                LeftChild = new ValueNode(5),
+                RightChild = new ValueNode(4),
+            },
+            RightChild = new ValueNode(3),
+        };
+
+        // Act
+        var actualTree =
+            buildExpressionTreeMethod.Invoke(expressionTree, new object?[] { postfixExpression });
+
+        // Assert
+
+        // Check root (should be AdditionNode)
+        var expectedRoot = expectedTree;
+        var actualRoot = actualTree; // Should be AdditionNode
+
+        Assert.That(actualRoot?.GetType(), Is.EqualTo(expectedRoot.GetType()));
+
+        // Check left child (Should be AdditionNode)
+        var expectedLeftChild = expectedRoot.LeftChild;
+        var actualLeftChild = ((AdditionNode)actualRoot!).LeftChild; // Should be AdditionNode
+
+        Assert.That(actualLeftChild?.GetType(), Is.EqualTo(expectedLeftChild.GetType()));
+
+        // Check right child (Should be ValueNode(3))
+        var expectedRightChild = expectedTree.RightChild;
+        var actualRightChild = ((AdditionNode)actualRoot!).RightChild; // Should be ValueNode with value 3
+
+        Assert.That(actualRightChild?.GetType(), Is.EqualTo(expectedRightChild.GetType()));
+        Assert.That(actualRightChild?.Evaluate(), Is.EqualTo(expectedRightChild.Evaluate()));
+
+        // Check left-left child
+        var expectedLeftLeftChild = ((AdditionNode)expectedTree.LeftChild!).LeftChild;
+        var actualLeftLeftChild = ((AdditionNode)((AdditionNode)actualRoot!).LeftChild!).LeftChild;
+
+        Assert.That(actualLeftLeftChild?.GetType(), Is.EqualTo(expectedLeftLeftChild!.GetType()));
+        Assert.That(actualLeftLeftChild?.Evaluate(), Is.EqualTo(expectedLeftLeftChild!.Evaluate()));
+
+        // Check left-right child
+        var expectedLeftRightChild = ((AdditionNode)expectedTree.LeftChild!).RightChild;
+        var actualLeftRightChild = ((AdditionNode)((AdditionNode)actualRoot!).LeftChild!).RightChild;
+
+        Assert.That(actualLeftRightChild?.GetType(), Is.EqualTo(expectedLeftRightChild!.GetType()));
+        Assert.That(actualLeftRightChild?.Evaluate(), Is.EqualTo(expectedLeftRightChild.Evaluate()));
     }
 }
