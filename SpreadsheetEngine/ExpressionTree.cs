@@ -81,7 +81,17 @@ public class ExpressionTree
     /// <param name="variableValue">The value of the variable (value).</param>
     public void SetVariable(string variableName, double variableValue)
     {
-        // TODO: Implement method to set the specified variable within the ExpressionTree variables dictionary
+        // Throw argument exception if an invalid variable name is inputted
+        if (string.IsNullOrWhiteSpace(variableName) || string.IsNullOrEmpty(variableName) ||
+            !char.IsLetter(variableName[0]))
+        {
+            throw new ArgumentException(
+                "Variable name must start with an alphabetical character.",
+                nameof(variableName));
+        }
+
+        // Update or add new variable
+        this.VariableDict[variableName] = variableValue;
     }
 
     /// <summary>

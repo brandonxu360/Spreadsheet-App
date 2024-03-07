@@ -436,9 +436,6 @@ internal class ExpressionTreeTests
         const string variableName = "1A"; // Variable names must start with an alphabetical character
         const double variableValue = 5.0;
 
-        // Act
-        expressionTree.SetVariable(variableName, variableValue);
-
         // Act & Assert
         Assert.Throws<ArgumentException>(() => expressionTree.SetVariable(variableName, variableValue));
         Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName));
