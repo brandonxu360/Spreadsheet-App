@@ -358,23 +358,69 @@ internal class ExpressionTreeTests
 
         // Check right child (Should be ValueNode(3))
         var expectedRightChild = expectedTree.RightChild;
-        var actualRightChild = ((AdditionNode)actualRoot!).RightChild; // Should be ValueNode with value 3
-
-        Assert.That(actualRightChild?.GetType(), Is.EqualTo(expectedRightChild.GetType()));
-        Assert.That(actualRightChild?.Evaluate(), Is.EqualTo(expectedRightChild.Evaluate()));
+        var actualRightChild = ((AdditionNode)actualRoot).RightChild; // Should be ValueNode with value 3
+        Assert.Multiple(() =>
+        {
+            Assert.That(actualRightChild?.GetType(), Is.EqualTo(expectedRightChild.GetType()));
+            Assert.That(actualRightChild?.Evaluate(), Is.EqualTo(expectedRightChild.Evaluate()));
+        });
 
         // Check left-left child
         var expectedLeftLeftChild = ((AdditionNode)expectedTree.LeftChild!).LeftChild;
-        var actualLeftLeftChild = ((AdditionNode)((AdditionNode)actualRoot!).LeftChild!).LeftChild;
-
-        Assert.That(actualLeftLeftChild?.GetType(), Is.EqualTo(expectedLeftLeftChild!.GetType()));
-        Assert.That(actualLeftLeftChild?.Evaluate(), Is.EqualTo(expectedLeftLeftChild!.Evaluate()));
+        var actualLeftLeftChild = ((AdditionNode)((AdditionNode)actualRoot).LeftChild!).LeftChild;
+        Assert.Multiple(() =>
+        {
+            Assert.That(actualLeftLeftChild?.GetType(), Is.EqualTo(expectedLeftLeftChild!.GetType()));
+            Assert.That(actualLeftLeftChild?.Evaluate(), Is.EqualTo(expectedLeftLeftChild.Evaluate()));
+        });
 
         // Check left-right child
         var expectedLeftRightChild = ((AdditionNode)expectedTree.LeftChild!).RightChild;
-        var actualLeftRightChild = ((AdditionNode)((AdditionNode)actualRoot!).LeftChild!).RightChild;
+        var actualLeftRightChild = ((AdditionNode)((AdditionNode)actualRoot).LeftChild!).RightChild;
+        Assert.Multiple(() =>
+        {
+            Assert.That(actualLeftRightChild?.GetType(), Is.EqualTo(expectedLeftRightChild!.GetType()));
+            Assert.That(actualLeftRightChild?.Evaluate(), Is.EqualTo(expectedLeftRightChild.Evaluate()));
+        });
+    }
 
-        Assert.That(actualLeftRightChild?.GetType(), Is.EqualTo(expectedLeftRightChild!.GetType()));
-        Assert.That(actualLeftRightChild?.Evaluate(), Is.EqualTo(expectedLeftRightChild.Evaluate()));
+    /// <summary>
+    /// Tests the SetVariable method to create a new variable name-value pair in the ExpressionTree class.
+    /// </summary>
+    [Test]
+    public void SetVariableTestNewVariable()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree();
+        const string variableName = "A1";
+        const double variableValue = 5.0;
+
+        // Act
+        expressionTree.SetVariable(variableName, variableValue);
+
+        // Assert
+        Assert.That(expressionTree.VariableDict.ContainsKey(variableName));
+        Assert.AreEqual(variableValue, expressionTree.VariableDict[variableName]);
+    }
+
+    /// <summary>
+    /// Tests the SetVariable method to update a variable value in the ExpressionTree class.
+    /// </summary>
+    [Test]
+    public void SetVariableTestUpdateExistingVariable()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree();
+        const string variableName = "A1";
+        const double initialValue = 5.0;
+        const double updatedValue = 10.0;
+
+        // Act
+        expressionTree.SetVariable(variableName, initialValue);
+        expressionTree.SetVariable(variableName, updatedValue);
+
+        // Assert
+        Assert.That(expressionTree.VariableDict.ContainsKey(variableName));
+        Assert.AreEqual(updatedValue, expressionTree.VariableDict[variableName]);
     }
 }

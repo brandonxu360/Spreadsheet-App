@@ -32,14 +32,19 @@ public class ExpressionTree
     /// </summary>
     public ExpressionTree()
     {
+        // Initialize the variable dictionary
+        this.VariableDict = new Dictionary<string, double>();
+
         // TODO: use "A1+B1+C1" after named variables are implemented.
         const string expression = "1+2+3"; // Have a default expression
 
         // Tokenize the expression
         var tokenizedExpression = this.Tokenize(expression);
 
+        // Convert the expression to postfix
         var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
 
+        // Build the expression tree
         this.root = this.BuildExpressionTree(postFixTokenizedExpression);
     }
 
@@ -49,13 +54,23 @@ public class ExpressionTree
     /// <param name="expression">The expression to construct the tree from.</param>
     public ExpressionTree(string expression)
     {
+        // Initialize the variable dictionary
+        this.VariableDict = new Dictionary<string, double>();
+
         // Tokenize the expression
         var tokenizedExpression = this.Tokenize(expression);
 
+        // Convert the expression to postfix
         var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
 
+        // Build the expression tree
         this.root = this.BuildExpressionTree(postFixTokenizedExpression);
     }
+
+    /// <summary>
+    /// Gets or sets the variable dictionary for the expression, containing name-value key-value pairs.
+    /// </summary>
+    public Dictionary<string, double> VariableDict { get; set; }
 
     /// <summary>
     /// Sets the specified variable within the ExpressionTree variables dictionary.
