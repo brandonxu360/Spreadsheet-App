@@ -423,4 +423,24 @@ internal class ExpressionTreeTests
         Assert.That(expressionTree.VariableDict.ContainsKey(variableName));
         Assert.AreEqual(updatedValue, expressionTree.VariableDict[variableName]);
     }
+
+    /// <summary>
+    /// Tests the SetVariable method to create an invalid new variable name-value pair in the ExpressionTree class.
+    /// The name will not follow the required conventions stated in the method summary.
+    /// </summary>
+    [Test]
+    public void SetVariableTestNewVariableException()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree();
+        const string variableName = "1A"; // Variable names must start with an alphabetical character
+        const double variableValue = 5.0;
+
+        // Act
+        expressionTree.SetVariable(variableName, variableValue);
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => expressionTree.SetVariable(variableName, variableValue));
+        Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName));
+    }
 }

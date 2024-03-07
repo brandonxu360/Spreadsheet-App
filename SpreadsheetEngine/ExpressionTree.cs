@@ -74,6 +74,8 @@ public class ExpressionTree
 
     /// <summary>
     /// Sets the specified variable within the ExpressionTree variables dictionary.
+    /// NOTE: variable names must start with a an alphabet character, upper or lower-case, and be followed by any
+    ///       number of alphabet characters and numerical digits (0-9).
     /// </summary>
     /// <param name="variableName">The name of the variable (key).</param>
     /// <param name="variableValue">The value of the variable (value).</param>
