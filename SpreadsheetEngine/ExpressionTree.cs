@@ -25,7 +25,7 @@ public class ExpressionTree
     /// Root of the tree.
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    private readonly ExpTreeNode? root;
+    private ExpTreeNode? root;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExpressionTree"/> class.
@@ -38,14 +38,7 @@ public class ExpressionTree
         // TODO: use "A1+B1+C1" after named variables are implemented.
         const string expression = "1+2+3"; // Have a default expression
 
-        // Tokenize the expression
-        var tokenizedExpression = this.Tokenize(expression);
-
-        // Convert the expression to postfix
-        var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
-
-        // Build the expression tree
-        this.root = this.BuildExpressionTree(postFixTokenizedExpression);
+        this.SetExpressionTree(expression);
     }
 
     /// <summary>
@@ -57,6 +50,20 @@ public class ExpressionTree
         // Initialize the variable dictionary
         this.VariableDict = new Dictionary<string, double>();
 
+        this.SetExpressionTree(expression);
+    }
+
+    /// <summary>
+    /// Gets or sets the variable dictionary for the expression, containing name-value key-value pairs.
+    /// </summary>
+    public Dictionary<string, double> VariableDict { get; set; }
+
+    /// <summary>
+    /// Builds the expression tree based on the infix string expression input and sets the root node accordingly.
+    /// </summary>
+    /// <param name="expression">The infix string expression to create the expression tree from.</param>
+    public void SetExpressionTree(string expression)
+    {
         // Tokenize the expression
         var tokenizedExpression = this.Tokenize(expression);
 
@@ -66,11 +73,6 @@ public class ExpressionTree
         // Build the expression tree
         this.root = this.BuildExpressionTree(postFixTokenizedExpression);
     }
-
-    /// <summary>
-    /// Gets or sets the variable dictionary for the expression, containing name-value key-value pairs.
-    /// </summary>
-    public Dictionary<string, double> VariableDict { get; set; }
 
     /// <summary>
     /// Sets the specified variable within the ExpressionTree variables dictionary.
@@ -228,6 +230,14 @@ public class ExpressionTree
 
                 // Push the operator node onto the stack
                 stack.Push(operatorNode);
+            }
+
+            // If the token is a variable (variables must start with a letter)
+            else if (char.IsLetter(token[0]))
+            {
+                // Create variableNode and push to stack
+                var variableNode = new VariableNode(this.VariableDict, token);
+                stack.Push(variableNode);
             }
 
             // If the token is a number, create a new value node and push it onto the stack
