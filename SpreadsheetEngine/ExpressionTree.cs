@@ -25,23 +25,22 @@ public class ExpressionTree
     /// Root of the tree.
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    private ExpTreeNode? root;
+    private readonly ExpTreeNode? root;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExpressionTree"/> class.
     /// </summary>
     public ExpressionTree()
     {
-        const string expression = "A1+B1+C1"; // Have a default expression
+        // TODO: use "A1+B1+C1" after named variables are implemented.
+        const string expression = "1+2+3"; // Have a default expression
 
         // Tokenize the expression
         var tokenizedExpression = this.Tokenize(expression);
 
-        // TODO: Convert the tokenized expression to postfix order
-        // var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
+        var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
 
-        // TODO: Build tree using the tokenized postfix expression and assign the node returned as the root
-        // this.root = this.BuildExpressionTree(postFixTokenizedExpression);
+        this.root = this.BuildExpressionTree(postFixTokenizedExpression);
     }
 
     /// <summary>
@@ -53,11 +52,9 @@ public class ExpressionTree
         // Tokenize the expression
         var tokenizedExpression = this.Tokenize(expression);
 
-        // TODO: Convert the tokenized expression to postfix order
-        // var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
+        var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
 
-        // TODO: Build tree using the tokenized postfix expression and assign the node returned as the root
-        // this.root = this.BuildExpressionTree(postFixTokenizedExpression);
+        this.root = this.BuildExpressionTree(postFixTokenizedExpression);
     }
 
     /// <summary>
@@ -181,9 +178,48 @@ public class ExpressionTree
     /// </summary>
     /// <param name="postFixTokenizedExpression">A tokenized expression in postfix order.</param>
     /// <returns>The ExpTreeNode root node of the resultant tree.</returns>
-    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
     private ExpTreeNode BuildExpressionTree(List<string> postFixTokenizedExpression)
     {
-        throw new NotImplementedException();
+        var stack = new Stack<ExpTreeNode>();
+
+        // Iterate over each token in the postfix expression
+        foreach (var token in postFixTokenizedExpression)
+        {
+            // If the token is an operator, pop two nodes from the stack and create a new operator node with them as children
+            if (this.operatorNodeTypes.TryGetValue(token, out var operatorNodeType))
+            {
+                // Create an instance of the operator node based on the token
+                var operatorNode = (OperatorNode)Activator.CreateInstance(operatorNodeType)!;
+
+                // Pop the right and left child nodes from the stack
+                var rightChild = stack.Pop();
+                var leftChild = stack.Pop();
+
+                // Assign the right and left child nodes to the operator node
+                operatorNode.LeftChild = leftChild;
+                operatorNode.RightChild = rightChild;
+
+                // Push the operator node onto the stack
+                stack.Push(operatorNode);
+            }
+
+            // If the token is a number, create a new value node and push it onto the stack
+            else
+            {
+                // Convert token to double
+                if (double.TryParse(token, out var value))
+                {
+                    var valueNode = new ValueNode(value);
+                    stack.Push(valueNode);
+                }
+                else
+                {
+                    throw new FormatException($"Invalid token: {token}");
+                }
+            }
+        }
+
+        // The root of the expression tree will be the only node left in the stack
+        return stack.Pop();
     }
 }
