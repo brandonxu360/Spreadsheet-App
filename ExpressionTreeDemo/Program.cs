@@ -26,6 +26,7 @@ namespace ExpressionTreeDemo
             // Loop until the user decides to quit
             while (running)
             {
+                Console.WriteLine("Current Expression: " + expressionTree.InfixStringExpression);
                 Console.WriteLine("Menu:");
                 Console.WriteLine("1. Enter an expression string");
                 Console.WriteLine("2. Set a variable value");
@@ -35,6 +36,7 @@ namespace ExpressionTreeDemo
 
                 var choice = Console.ReadLine();
 
+                Console.WriteLine(); // Spacer
                 switch (choice)
                 {
                     case "1":
@@ -49,10 +51,23 @@ namespace ExpressionTreeDemo
                     case "4":
                         running = false;
                         break;
-                    default:
-                        Console.WriteLine("Invalid choice. Please enter a number from 1 to 4.");
-                        break;
+
+                    // Should the user enter an “option” that isn’t one of these 4, simply ignore it. As trivial as this may
+                    // seem it is vital should the assignment be tested with an automated grading app.
                 }
+
+                // Avoid use of Console.ReadKey() as it can be problematic when grading
+                // with an automated app. Simply fall through to the end of main after the quit option is
+                // selected.
+
+                // Fall through to end of main if quit or undefined option was selected (avoid ReadKey)
+                if (choice is "1" or "2" or "3")
+                {
+                    Console.WriteLine("\nPress any key to continue...");
+                    Console.ReadKey();
+                }
+
+                Console.Clear();
             }
         }
 

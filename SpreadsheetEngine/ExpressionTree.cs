@@ -35,10 +35,10 @@ public class ExpressionTree
         // Initialize the variable dictionary
         this.VariableDict = new Dictionary<string, double>();
 
-        const string expression = "A1+B1+C1"; // Have a default expression
+        this.InfixStringExpression = "A1+B1+C1"; // Set to a default expression
 
         // Set the expression tree given the default expression
-        this.SetExpressionTree(expression);
+        this.SetExpressionTree(this.InfixStringExpression);
     }
 
     /// <summary>
@@ -47,12 +47,21 @@ public class ExpressionTree
     /// <param name="expression">The expression to construct the tree from.</param>
     public ExpressionTree(string expression)
     {
+        // Set to a default expression
+        this.InfixStringExpression = "A1+B1+C1"; // This property will be updated through SetExpressTree
+
         // Initialize the variable dictionary
         this.VariableDict = new Dictionary<string, double>();
 
-        // Initialize the expression tree with the given expression
+        // Build and set the expression tree with the given expression
         this.SetExpressionTree(expression);
     }
+
+    /// <summary>
+    /// Gets the infix string representation of the expression the expression tree holds.
+    /// For display purposes in the console application demo.
+    /// </summary>
+    public string InfixStringExpression { get; private set; }
 
     /// <summary>
     /// Gets or sets the variable dictionary for the expression, containing name-value key-value pairs.
@@ -65,6 +74,9 @@ public class ExpressionTree
     /// <param name="expression">The infix string expression to create the expression tree from.</param>
     public void SetExpressionTree(string expression)
     {
+        // Set the infix string expression
+        this.InfixStringExpression = expression;
+
         // Tokenize the expression
         var tokenizedExpression = this.Tokenize(expression);
 
@@ -111,7 +123,7 @@ public class ExpressionTree
         }
         else
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException("Evaluating an empty expression tree is not supported.");
         }
     }
 
