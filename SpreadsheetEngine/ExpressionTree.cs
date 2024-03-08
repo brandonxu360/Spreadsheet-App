@@ -35,9 +35,9 @@ public class ExpressionTree
         // Initialize the variable dictionary
         this.VariableDict = new Dictionary<string, double>();
 
-        // TODO: use "A1+B1+C1" after named variables are implemented.
-        const string expression = "1+2+3"; // Have a default expression
+        const string expression = "A1+B1+C1"; // Have a default expression
 
+        // Set the expression tree given the default expression
         this.SetExpressionTree(expression);
     }
 
@@ -50,6 +50,7 @@ public class ExpressionTree
         // Initialize the variable dictionary
         this.VariableDict = new Dictionary<string, double>();
 
+        // Initialize the expression tree with the given expression
         this.SetExpressionTree(expression);
     }
 
@@ -92,7 +93,7 @@ public class ExpressionTree
                 nameof(variableName));
         }
 
-        // Update or add new variable
+        // Update or add new variable with the given name and value
         this.VariableDict[variableName] = variableValue;
     }
 

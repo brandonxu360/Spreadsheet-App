@@ -72,6 +72,7 @@ namespace ExpressionTreeDemo
             }
             else
             {
+                // If the expression tree object or user input are somehow null
                 Console.WriteLine("Expression was not set successfully.");
             }
         }

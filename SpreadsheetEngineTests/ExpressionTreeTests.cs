@@ -194,9 +194,10 @@ internal class ExpressionTreeTests
     [TestCase("2+")] // Expression with an add operator missing the second operand
     public void ExpressionTreeConstructionExceptional(string expression)
     {
+        // InvalidOperationException expected - tree will not build properly
         Assert.That(
             () => new ExpressionTree(expression),
-            Throws.TypeOf<Exception>());
+            Throws.TypeOf<InvalidOperationException>());
     }
 
     /// <summary>
