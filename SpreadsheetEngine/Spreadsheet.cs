@@ -33,9 +33,9 @@ public class Spreadsheet
         this.cells = new Cell[rowCount, columnCount];
 
         // Create a spreadsheet cell and assign it to each position in the cell array
-        for (int i = 0; i < rowCount; i++)
+        for (var i = 0; i < rowCount; i++)
         {
-            for (int j = 0; j < columnCount; j++)
+            for (var j = 0; j < columnCount; j++)
             {
                 this.cells[i, j] = new SpreadsheetCell(i, j);
 

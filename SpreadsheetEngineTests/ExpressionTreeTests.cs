@@ -60,7 +60,7 @@ internal class ExpressionTreeTests
     ///   learn how to deal with exceptions, we will change this.
     /// </summary>
     [Test]
-    public void VariableNodeEvaluateReturnsDefaultWhenVariableNotInDictionary()
+    public void VariableNodeEvaluateTestVariableNotInDictionary()
     {
         // Arrange
         const string name = "y"; // Variable name not present in dictionary
@@ -210,6 +210,7 @@ internal class ExpressionTreeTests
     [TestCase("3+7+2+1", ExpectedResult = 13)] // Expression with multiple add operators
     [TestCase("3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
     [TestCase("3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
+    [TestCase("0/0", ExpectedResult = 0.0 / 0)] // Expression with multiple division operators
     public double ExpressionTreeEvaluateTestNormal(string expression)
     {
         var exp = new ExpressionTree(expression);
