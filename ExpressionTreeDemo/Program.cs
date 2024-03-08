@@ -64,7 +64,7 @@ namespace ExpressionTreeDemo
             // Get string infix expression
             Console.Write("Enter an expression: ");
             var expression = Console.ReadLine();
-            if (expression != null && expressionTree != null)
+            if (expression != null && expressionTree != null && expression.Length > 0)
             {
                 // Build and set the expression tree
                 expressionTree.SetExpressionTree(expression);
@@ -72,7 +72,7 @@ namespace ExpressionTreeDemo
             }
             else
             {
-                // If the expression tree object or user input are somehow null
+                // If the expression tree object or user input are somehow null, or input is empty
                 Console.WriteLine("Expression was not set successfully.");
             }
         }
