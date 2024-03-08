@@ -1,4 +1,4 @@
-// <copyright file="SpreadsheetEngineTests.cs" company="PlaceholderCompany">
+// <copyright file="SpreadsheetTests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,9 +8,10 @@ using System.Diagnostics;
 using SpreadsheetEngine;
 
 /// <summary>
-/// Class to contain the tests for the SpreadsheetEngine functionality tests.
+/// Class to unit test the Spreadsheet functionality.
 /// </summary>
-internal class SpreadsheetEngineTests
+[TestFixture]
+internal class SpreadsheetTests
 {
     /// <summary>
     /// Tests the proper initialization of a spreadsheet.
