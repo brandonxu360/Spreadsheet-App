@@ -57,7 +57,7 @@ internal class SpreadsheetTests
         // Assert
         Assert.Throws<IndexOutOfRangeException>(() =>
         {
-            // The cell array has dimensions of 0, so attempting to retrieve a cell at 0, 0 should throw an IndexOutofRangeException
+            // The cell array has dimensions of 0, so attempting to retrieve a cell at 0, 0 should throw an IndexOutOfRangeException
             testSpreadsheet.GetCell(0, 0);
         });
     }
@@ -204,5 +204,27 @@ internal class SpreadsheetTests
 
         // B1 value should stay "" (empty)
         Assert.That(cellB1.Value, Is.EqualTo(string.Empty));
+    }
+
+    /// <summary>
+    /// Tests the OperatorNodeFactory factory method for instantiating the correct type of OperatorNode.
+    /// </summary>
+    /// <param name="operatorSymbol">The string symbol for the specific OperatorNode type.</param>
+    /// <returns>The type of the OperatorNode instantiated.</returns>
+    [Test]
+    [TestCase("+", ExpectedResult = typeof(AdditionNode))] // Addition operator test
+    [TestCase("-", ExpectedResult = typeof(SubtractionNode))] // Subtraction operator test
+    [TestCase("*", ExpectedResult = typeof(MultiplicationNode))] // Multiplication operator test
+    [TestCase("/", ExpectedResult = typeof(DivisionNode))] // Division operator test
+    public Type OperatorNodeFactoryTest(string operatorSymbol)
+    {
+        // Arrange
+        var operatorNodeFactory = new OperatorNodeFactory();
+
+        // Act
+        var operatorNode = operatorNodeFactory.CreateOperatorNode(operatorSymbol);
+
+        // Assert
+        return operatorNode.GetType();
     }
 }
