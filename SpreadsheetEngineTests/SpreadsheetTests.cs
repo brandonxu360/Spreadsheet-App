@@ -216,7 +216,7 @@ internal class SpreadsheetTests
     [TestCase("-", ExpectedResult = typeof(SubtractionNode))] // Subtraction operator test
     [TestCase("*", ExpectedResult = typeof(MultiplicationNode))] // Multiplication operator test
     [TestCase("/", ExpectedResult = typeof(DivisionNode))] // Division operator test
-    public Type OperatorNodeFactoryTest(string operatorSymbol)
+    public Type? OperatorNodeFactoryTest(string operatorSymbol)
     {
         // Arrange
         var operatorNodeFactory = new OperatorNodeFactory();
@@ -225,6 +225,6 @@ internal class SpreadsheetTests
         var operatorNode = operatorNodeFactory.CreateOperatorNode(operatorSymbol);
 
         // Assert
-        return operatorNode.GetType();
+        return operatorNode?.GetType();
     }
 }

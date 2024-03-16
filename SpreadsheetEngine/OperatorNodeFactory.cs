@@ -11,14 +11,30 @@ namespace SpreadsheetEngine;
 public class OperatorNodeFactory
 {
     /// <summary>
+    /// Dictionary mapping operator symbols to OperatorNode types.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    public readonly Dictionary<string, Type> OperatorNodeTypes = new Dictionary<string, Type>()
+    {
+        { AdditionNode.OperatorSymbol, typeof(AdditionNode) },
+        { SubtractionNode.OperatorSymbol, typeof(SubtractionNode) },
+        { MultiplicationNode.OperatorSymbol, typeof(MultiplicationNode) },
+        { DivisionNode.OperatorSymbol, typeof(DivisionNode) },
+    };
+
+    /// <summary>
     /// Factory method for instantiating instances of OperatorNode.
     /// </summary>
-    /// <param name="op">The string symbol for the specific OperatorNode type.</param>
+    /// <param name="symbol">The string symbol for the specific OperatorNode type.</param>
     /// <returns>A specific OperatorNode instance.</returns>
-    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
-    public OperatorNode CreateOperatorNode(string op)
+    public OperatorNode? CreateOperatorNode(string symbol)
     {
-        // TODO: Implement factory method for operator nodes
-        throw new NotImplementedException();
+        if (this.OperatorNodeTypes.TryGetValue(symbol, out var operatorNodeType))
+        {
+            return (OperatorNode)Activator.CreateInstance(operatorNodeType)!;
+        }
+
+        // Return null if the operator was not found in the operator dictionary
+        return null;
     }
 }
