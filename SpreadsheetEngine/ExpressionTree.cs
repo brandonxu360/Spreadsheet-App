@@ -149,8 +149,8 @@ public class ExpressionTree
                 i++; // Skip whitespace
             }
 
-            // Operator encountered
-            else if (this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(c.ToString()))
+            // Operator or parenthesis (one character long units) encountered
+            else if (this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(c.ToString()) || c == '(' || c == ')')
             {
                 // Add whitespace as token
                 tokenList.Add(c.ToString());
@@ -160,11 +160,13 @@ public class ExpressionTree
             // Variable or value encounter
             else
             {
-                // Read characters until whitespace, operator, or end of expression is encountered
+                // Read characters until whitespace, operator, parenthesis, or end of expression is encountered
                 var start = i;
                 while (i < expression.Length &&
                        !this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(expression[i].ToString()) &&
-                       !char.IsWhiteSpace(expression[i]))
+                       !char.IsWhiteSpace(expression[i]) &&
+                       expression[i] != '(' &&
+                       expression[i] != ')')
                 {
                     i++;
                 }
