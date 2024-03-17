@@ -10,13 +10,16 @@ namespace SpreadsheetEngine;
 public class ExpressionTree
 {
     /// <summary>
+    /// The factory responsible for instantiating specific instances of operator nodes.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private readonly OperatorNodeFactory operatorNodeFactory;
+
+    /// <summary>
     /// Root of the tree.
     /// </summary>
     // ReSharper disable once InconsistentNaming
     private ExpTreeNode? root;
-
-    // ReSharper disable once InconsistentNaming
-    private OperatorNodeFactory operatorNodeFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExpressionTree"/> class.
@@ -159,7 +162,8 @@ public class ExpressionTree
             {
                 // Read characters until whitespace, operator, or end of expression is encountered
                 var start = i;
-                while (i < expression.Length && !this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(expression[i].ToString()) &&
+                while (i < expression.Length &&
+                       !this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(expression[i].ToString()) &&
                        !char.IsWhiteSpace(expression[i]))
                 {
                     i++;
@@ -173,7 +177,7 @@ public class ExpressionTree
     }
 
     /// <summary>
-    /// Converts a tokenized infix expression to postfix. Only supports expressions of one operator type.
+    /// Converts a tokenized infix expression to postfix.
     /// </summary>
     /// <param name="tokenizedExpression">A list of string tokens representing an expression in infix order.</param>
     /// <returns>A list of string tokens representing the expression in postfix order.</returns>
@@ -188,13 +192,37 @@ public class ExpressionTree
             // If the token is an operator
             if (this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(token))
             {
-                if (operatorStack.Count > 0)
+                // Handle precedence and parentheses
+                while (operatorStack.Count > 0 &&
+                       this.operatorNodeFactory.Precedence.TryGetValue(operatorStack.Peek(), out var stackPrecedence) &&
+                       this.operatorNodeFactory.Precedence[token] <= stackPrecedence)
                 {
-                    // Push the operators off the operator stack onto the output stack if operators are on the operator stack
                     outputList.Add(operatorStack.Pop());
                 }
 
                 operatorStack.Push(token);
+            }
+
+            // If the token is a left parenthesis, push it onto the operator stack
+            else if (token == "(")
+            {
+                operatorStack.Push(token);
+            }
+
+            // If the token is a right parenthesis, pop operators from the stack until a left parenthesis is encountered
+            else if (token == ")")
+            {
+                while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
+                {
+                    outputList.Add(operatorStack.Pop());
+                }
+
+                if (operatorStack.Count == 0)
+                {
+                    throw new ArgumentException("Mismatched parentheses");
+                }
+
+                operatorStack.Pop(); // Discard the left parenthesis
             }
 
             // If the token is a number or variable, add it to the output queue
@@ -204,8 +232,8 @@ public class ExpressionTree
             }
         }
 
-        // Catch the last operator on the operator stack
-        if (operatorStack.Count > 0)
+        // Catch the last operators on the operator stack
+        while (operatorStack.Count > 0)
         {
             outputList.Add(operatorStack.Pop());
         }

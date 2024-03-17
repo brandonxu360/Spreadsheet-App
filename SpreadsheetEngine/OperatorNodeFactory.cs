@@ -23,6 +23,17 @@ public class OperatorNodeFactory
     };
 
     /// <summary>
+    /// Define operator precedence for each operator type.
+    /// </summary>
+    public Dictionary<string, int> Precedence = new Dictionary<string, int>
+    {
+        { AdditionNode.OperatorSymbol, AdditionNode.Precedence },
+        { SubtractionNode.OperatorSymbol, SubtractionNode.Precedence },
+        { MultiplicationNode.OperatorSymbol, MultiplicationNode.Precedence },
+        { DivisionNode.OperatorSymbol, DivisionNode.Precedence },
+    };
+
+    /// <summary>
     /// Factory method for instantiating instances of OperatorNode.
     /// </summary>
     /// <param name="symbol">The string symbol for the specific OperatorNode type.</param>
