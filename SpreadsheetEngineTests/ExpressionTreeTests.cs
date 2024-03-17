@@ -211,6 +211,14 @@ internal class ExpressionTreeTests
     [TestCase("3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
     [TestCase("3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
     [TestCase("0/0", ExpectedResult = 0.0 / 0)] // Expression with multiple division operators
+
+    // Testing operator precedence between addition and subtraction vs multiplication and division
+    [TestCase("3+7/4", ExpectedResult = 3.0 + (7.0 / 4.0))]
+    [TestCase("3*2-5/8", ExpectedResult = (3.0 * 2.0) - (5.0 / 8.0))]
+
+    // Testing parenthesis
+    [TestCase("(3+7)/4", ExpectedResult = (3.0 + 7.0) / 4.0)]
+    [TestCase("3/(7+4)", ExpectedResult = 3.0 / (7.0 + 4.0))]
     public double ExpressionTreeEvaluateTestNormal(string expression)
     {
         var exp = new ExpressionTree(expression);
