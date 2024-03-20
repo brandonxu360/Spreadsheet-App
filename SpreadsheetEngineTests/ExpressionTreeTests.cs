@@ -450,4 +450,43 @@ internal class ExpressionTreeTests
         Assert.Throws<ArgumentException>(() => expressionTree.SetVariable(variableName, variableValue));
         Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName));
     }
+
+    /// <summary>
+    /// Tests the behavior of adding variables to the dictionary with a default value (0) as they are encountered while building the tree.
+    /// </summary>
+    [Test]
+    public void AddVariablesWithDefaultValueWhenBuildTreeTest()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree();
+        expressionTree.SetExpressionTree("A1+B1");
+
+        // Assert (values should be set to default values)
+        Assert.That(expressionTree.VariableDict["A1"], Is.EqualTo(0));
+        Assert.That(expressionTree.VariableDict["B1"], Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Tests the clearing of the variable dictionary when changing the expression in a normal case.
+    /// </summary>
+    [Test]
+    public void ChangeExpressionClearPreviousVariablesTest()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree();
+        expressionTree.SetExpressionTree("A1+B1");
+        const string variableName1 = "A1";
+        const double variableValue1 = 5.0;
+        const string variableName2 = "B1";
+        const double variableValue2 = 5.0;
+        expressionTree.SetVariable(variableName1, variableValue1);
+        expressionTree.SetVariable(variableName2, variableValue2);
+
+        // Act
+        expressionTree.SetExpressionTree("A1");
+
+        // Assert (values should be set to default values or no longer members of the variable dictionary)
+        Assert.That(expressionTree.VariableDict[variableName1], Is.EqualTo(0));
+        Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName2));
+    }
 }
