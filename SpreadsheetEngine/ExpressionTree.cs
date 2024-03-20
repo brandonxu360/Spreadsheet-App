@@ -71,6 +71,7 @@ public class ExpressionTree
 
     /// <summary>
     /// Builds the expression tree based on the infix string expression input and sets the root node accordingly.
+    /// The variable dictionary is cleared each time the expression is changed.
     /// </summary>
     /// <param name="expression">The infix string expression to create the expression tree from.</param>
     public void SetExpressionTree(string expression)
@@ -83,6 +84,9 @@ public class ExpressionTree
 
         // Convert the expression to postfix
         var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
+
+        // Clear the variable dictionary (before rebuilding the expression tree because the new variable pairs are added in that step)
+        this.VariableDict.Clear();
 
         // Build the expression tree
         this.root = this.BuildExpressionTree(postFixTokenizedExpression);
@@ -250,6 +254,7 @@ public class ExpressionTree
     /// <returns>The ExpTreeNode root node of the resultant tree.</returns>
     private ExpTreeNode BuildExpressionTree(List<string> postFixTokenizedExpression)
     {
+        // Output stack
         var stack = new Stack<ExpTreeNode>();
 
         // Iterate over each token in the postfix expression
@@ -279,6 +284,9 @@ public class ExpressionTree
                 // Create variableNode and push to stack
                 var variableNode = new VariableNode(this.VariableDict, token);
                 stack.Push(variableNode);
+
+                // Set the variable to default in the variable dictionary
+                this.SetVariable(token, 0);
             }
 
             // If the token is a number, create a new value node and push it onto the stack
