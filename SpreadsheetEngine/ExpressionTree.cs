@@ -10,16 +10,10 @@ namespace SpreadsheetEngine;
 public class ExpressionTree
 {
     /// <summary>
-    /// Dictionary mapping operator symbols to OperatorNode types.
+    /// The factory responsible for instantiating specific instances of operator nodes.
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    private readonly Dictionary<string, Type> operatorNodeTypes = new Dictionary<string, Type>()
-    {
-        { AdditionNode.OperatorSymbol, typeof(AdditionNode) },
-        { SubtractionNode.OperatorSymbol, typeof(SubtractionNode) },
-        { MultiplicationNode.OperatorSymbol, typeof(MultiplicationNode) },
-        { DivisionNode.OperatorSymbol, typeof(DivisionNode) },
-    };
+    private readonly OperatorNodeFactory operatorNodeFactory;
 
     /// <summary>
     /// Root of the tree.
@@ -35,7 +29,11 @@ public class ExpressionTree
         // Initialize the variable dictionary
         this.VariableDict = new Dictionary<string, double>();
 
-        this.InfixStringExpression = "A1+B1+C1"; // Set to a default expression
+        // Initialize the infix expression to a default expression
+        this.InfixStringExpression = "A1+B1+C1";
+
+        // Initialize an instance of the OperatorNodeFactory
+        this.operatorNodeFactory = new OperatorNodeFactory();
 
         // Set the expression tree given the default expression
         this.SetExpressionTree(this.InfixStringExpression);
@@ -47,8 +45,11 @@ public class ExpressionTree
     /// <param name="expression">The expression to construct the tree from.</param>
     public ExpressionTree(string expression)
     {
-        // Set to a default expression
-        this.InfixStringExpression = "A1+B1+C1"; // This property will be updated through SetExpressTree
+        // Initialize the infix expression to a default expression
+        this.InfixStringExpression = "A1+B1+C1"; // This property will immediately be updated through SetExpressTree
+
+        // Initialize an instance of the OperatorNodeFactory
+        this.operatorNodeFactory = new OperatorNodeFactory();
 
         // Initialize the variable dictionary
         this.VariableDict = new Dictionary<string, double>();
@@ -70,6 +71,7 @@ public class ExpressionTree
 
     /// <summary>
     /// Builds the expression tree based on the infix string expression input and sets the root node accordingly.
+    /// The variable dictionary is cleared each time the expression is changed.
     /// </summary>
     /// <param name="expression">The infix string expression to create the expression tree from.</param>
     public void SetExpressionTree(string expression)
@@ -82,6 +84,9 @@ public class ExpressionTree
 
         // Convert the expression to postfix
         var postFixTokenizedExpression = this.ConvertInfixToPostfix(tokenizedExpression);
+
+        // Clear the variable dictionary (before rebuilding the expression tree because the new variable pairs are added in that step)
+        this.VariableDict.Clear();
 
         // Build the expression tree
         this.root = this.BuildExpressionTree(postFixTokenizedExpression);
@@ -148,8 +153,8 @@ public class ExpressionTree
                 i++; // Skip whitespace
             }
 
-            // Operator encountered
-            else if (this.operatorNodeTypes.ContainsKey(c.ToString()))
+            // Operator or parenthesis (one character long units) encountered
+            else if (this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(c.ToString()) || c == '(' || c == ')')
             {
                 // Add whitespace as token
                 tokenList.Add(c.ToString());
@@ -159,10 +164,13 @@ public class ExpressionTree
             // Variable or value encounter
             else
             {
-                // Read characters until whitespace, operator, or end of expression is encountered
+                // Read characters until whitespace, operator, parenthesis, or end of expression is encountered
                 var start = i;
-                while (i < expression.Length && !this.operatorNodeTypes.ContainsKey(expression[i].ToString()) &&
-                       !char.IsWhiteSpace(expression[i]))
+                while (i < expression.Length &&
+                       !this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(expression[i].ToString()) &&
+                       !char.IsWhiteSpace(expression[i]) &&
+                       expression[i] != '(' &&
+                       expression[i] != ')')
                 {
                     i++;
                 }
@@ -175,7 +183,7 @@ public class ExpressionTree
     }
 
     /// <summary>
-    /// Converts a tokenized infix expression to postfix. Only supports expressions of one operator type.
+    /// Converts a tokenized infix expression to postfix.
     /// </summary>
     /// <param name="tokenizedExpression">A list of string tokens representing an expression in infix order.</param>
     /// <returns>A list of string tokens representing the expression in postfix order.</returns>
@@ -188,15 +196,39 @@ public class ExpressionTree
         foreach (var token in tokenizedExpression)
         {
             // If the token is an operator
-            if (this.operatorNodeTypes.ContainsKey(token))
+            if (this.operatorNodeFactory.OperatorNodeTypes.ContainsKey(token))
             {
-                if (operatorStack.Count > 0)
+                // Handle precedence and parentheses
+                while (operatorStack.Count > 0 &&
+                       this.operatorNodeFactory.Precedence.TryGetValue(operatorStack.Peek(), out var stackPrecedence) &&
+                       this.operatorNodeFactory.Precedence[token] <= stackPrecedence)
                 {
-                    // Push the operators off the operator stack onto the output stack if operators are on the operator stack
                     outputList.Add(operatorStack.Pop());
                 }
 
                 operatorStack.Push(token);
+            }
+
+            // If the token is a left parenthesis, push it onto the operator stack
+            else if (token == "(")
+            {
+                operatorStack.Push(token);
+            }
+
+            // If the token is a right parenthesis, pop operators from the stack until a left parenthesis is encountered
+            else if (token == ")")
+            {
+                while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
+                {
+                    outputList.Add(operatorStack.Pop());
+                }
+
+                if (operatorStack.Count == 0)
+                {
+                    throw new ArgumentException("Mismatched parentheses");
+                }
+
+                operatorStack.Pop(); // Discard the left parenthesis
             }
 
             // If the token is a number or variable, add it to the output queue
@@ -206,8 +238,8 @@ public class ExpressionTree
             }
         }
 
-        // Catch the last operator on the operator stack
-        if (operatorStack.Count > 0)
+        // Catch the last operators on the operator stack
+        while (operatorStack.Count > 0)
         {
             outputList.Add(operatorStack.Pop());
         }
@@ -222,17 +254,18 @@ public class ExpressionTree
     /// <returns>The ExpTreeNode root node of the resultant tree.</returns>
     private ExpTreeNode BuildExpressionTree(List<string> postFixTokenizedExpression)
     {
+        // Output stack
         var stack = new Stack<ExpTreeNode>();
 
         // Iterate over each token in the postfix expression
         foreach (var token in postFixTokenizedExpression)
         {
-            // If the token is an operator, pop two nodes from the stack and create a new operator node with them as children
-            if (this.operatorNodeTypes.TryGetValue(token, out var operatorNodeType))
-            {
-                // Create an instance of the operator node based on the token
-                var operatorNode = (OperatorNode)Activator.CreateInstance(operatorNodeType)!;
+            // Try creating a node with the token (null if not able to)
+            var operatorNode = this.operatorNodeFactory.CreateOperatorNode(token);
 
+            // If the token is an operator, pop two nodes from the stack and create a new operator node with them as children
+            if (operatorNode is not null)
+            {
                 // Pop the right and left child nodes from the stack
                 var rightChild = stack.Pop();
                 var leftChild = stack.Pop();
@@ -251,6 +284,9 @@ public class ExpressionTree
                 // Create variableNode and push to stack
                 var variableNode = new VariableNode(this.VariableDict, token);
                 stack.Push(variableNode);
+
+                // Set the variable to default in the variable dictionary
+                this.SetVariable(token, 0);
             }
 
             // If the token is a number, create a new value node and push it onto the stack

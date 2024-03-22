@@ -211,6 +211,14 @@ internal class ExpressionTreeTests
     [TestCase("3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
     [TestCase("3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
     [TestCase("0/0", ExpectedResult = 0.0 / 0)] // Expression with multiple division operators
+
+    // Testing operator precedence between addition and subtraction vs multiplication and division
+    [TestCase("3+7/4", ExpectedResult = 3.0 + (7.0 / 4.0))]
+    [TestCase("3*2-5/8", ExpectedResult = (3.0 * 2.0) - (5.0 / 8.0))]
+
+    // Testing parenthesis
+    [TestCase("(3+7)/4", ExpectedResult = (3.0 + 7.0) / 4.0)]
+    [TestCase("3/(7+4)", ExpectedResult = 3.0 / (7.0 + 4.0))]
     public double ExpressionTreeEvaluateTestNormal(string expression)
     {
         var exp = new ExpressionTree(expression);
@@ -293,11 +301,13 @@ internal class ExpressionTreeTests
             { ["3", "+", "7"], ["3", "7", "+"] },
             { ["3", "-", "2", "-", "8", "-", "8"], ["3", "2", "-", "8", "-", "8", "-"] },
 
-            // Precedence not to be implemented yet
-            /* { "5*4+2", ["5", "4", "*", "2", "+"] },
-            { "5*(4+2)", ["5", "4", "2", "+", "*"] },
-            { "(5-3)*(7+2)", ["5", "3", "-", "7", "2", "+", "*"] },
-            { "3+4*2/(1-5)^2^3", ["3", "4", "2", "*", "1", "5", "-", "2", "3", "^", "^", "/", "+"] }, */
+            // Precedence tests
+            { ["5", "*", "4", "+", "2"], ["5", "4", "*", "2", "+"] },
+            { ["5", "*", "(", "4", "+", "2", ")"], ["5", "4", "2", "+", "*"] },
+            { ["(", "5", "-", "3", ")", "*", "(", "7", "+", "2", ")"], ["5", "3", "-", "7", "2", "+", "*"] },
+
+            // Exponent operator not implemented yet
+            // { ["3", "+", "4", "*", "2", "/", "(", "1", "-", "5", ")", "^", "2", "^", "3"], ["3", "4", "2", "*", "1", "5", "-", "2", "3", "^", "^", "/", "+"] },
         };
 
         foreach (var infixExpression in infixExpressions)
@@ -441,5 +451,44 @@ internal class ExpressionTreeTests
         // Act & Assert
         Assert.Throws<ArgumentException>(() => expressionTree.SetVariable(variableName, variableValue));
         Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName));
+    }
+
+    /// <summary>
+    /// Tests the behavior of adding variables to the dictionary with a default value (0) as they are encountered while building the tree.
+    /// </summary>
+    [Test]
+    public void AddVariablesWithDefaultValueWhenBuildTreeTest()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree();
+        expressionTree.SetExpressionTree("A1+B1");
+
+        // Assert (values should be set to default values)
+        Assert.That(expressionTree.VariableDict["A1"], Is.EqualTo(0));
+        Assert.That(expressionTree.VariableDict["B1"], Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Tests the clearing of the variable dictionary when changing the expression in a normal case.
+    /// </summary>
+    [Test]
+    public void ChangeExpressionClearPreviousVariablesTest()
+    {
+        // Arrange
+        var expressionTree = new ExpressionTree();
+        expressionTree.SetExpressionTree("A1+B1");
+        const string variableName1 = "A1";
+        const double variableValue1 = 5.0;
+        const string variableName2 = "B1";
+        const double variableValue2 = 5.0;
+        expressionTree.SetVariable(variableName1, variableValue1);
+        expressionTree.SetVariable(variableName2, variableValue2);
+
+        // Act
+        expressionTree.SetExpressionTree("A1");
+
+        // Assert (values should be set to default values or no longer members of the variable dictionary)
+        Assert.That(expressionTree.VariableDict[variableName1], Is.EqualTo(0));
+        Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName2));
     }
 }
