@@ -14,7 +14,10 @@ public class OperatorNodeFactory
     /// Dictionary mapping operator symbols to OperatorNode types.
     /// </summary>
     // ReSharper disable once InconsistentNaming
+    // Disable private suggestion - dictionary is accessed by the ExpressionTree class
+    #pragma warning disable SA1401
     public readonly Dictionary<string, Type> OperatorNodeTypes = new Dictionary<string, Type>()
+    #pragma warning restore SA1401
     {
         { AdditionNode.OperatorSymbol, typeof(AdditionNode) },
         { SubtractionNode.OperatorSymbol, typeof(SubtractionNode) },
@@ -25,7 +28,10 @@ public class OperatorNodeFactory
     /// <summary>
     /// Define operator precedence for each operator type.
     /// </summary>
-    public Dictionary<string, int> Precedence = new Dictionary<string, int>
+    // Disable private suggestion = dictionary is accessed by the ExpressionTree class
+    #pragma warning disable SA1401
+    public readonly Dictionary<string, int> Precedence = new Dictionary<string, int>
+    #pragma warning restore SA1401
     {
         { AdditionNode.OperatorSymbol, AdditionNode.Precedence },
         { SubtractionNode.OperatorSymbol, SubtractionNode.Precedence },
