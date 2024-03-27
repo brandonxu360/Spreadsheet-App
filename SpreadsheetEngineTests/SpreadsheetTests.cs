@@ -205,26 +205,4 @@ internal class SpreadsheetTests
         // B1 value should stay "" (empty)
         Assert.That(cellB1.Value, Is.EqualTo(string.Empty));
     }
-
-    /// <summary>
-    /// Tests the OperatorNodeFactory factory method for instantiating the correct type of OperatorNode.
-    /// </summary>
-    /// <param name="operatorSymbol">The string symbol for the specific OperatorNode type.</param>
-    /// <returns>The type of the OperatorNode instantiated.</returns>
-    [Test]
-    [TestCase("+", ExpectedResult = typeof(AdditionNode))] // Addition operator test
-    [TestCase("-", ExpectedResult = typeof(SubtractionNode))] // Subtraction operator test
-    [TestCase("*", ExpectedResult = typeof(MultiplicationNode))] // Multiplication operator test
-    [TestCase("/", ExpectedResult = typeof(DivisionNode))] // Division operator test
-    public Type? OperatorNodeFactoryTest(string operatorSymbol)
-    {
-        // Arrange
-        var operatorNodeFactory = new OperatorNodeFactory();
-
-        // Act
-        var operatorNode = operatorNodeFactory.CreateOperatorNode(operatorSymbol);
-
-        // Assert
-        return operatorNode?.GetType();
-    }
 }
