@@ -16,28 +16,26 @@ public class OperatorNodeFactory
     // ReSharper disable once InconsistentNaming
     // Disable private suggestion - dictionary is accessed by the ExpressionTree class
     #pragma warning disable SA1401
-    public readonly Dictionary<string, Type> OperatorNodeTypes = new Dictionary<string, Type>()
+    public readonly Dictionary<string, Type> OperatorNodeTypes;
     #pragma warning restore SA1401
-    {
-        { AdditionNode.OperatorSymbol, typeof(AdditionNode) },
-        { SubtractionNode.OperatorSymbol, typeof(SubtractionNode) },
-        { MultiplicationNode.OperatorSymbol, typeof(MultiplicationNode) },
-        { DivisionNode.OperatorSymbol, typeof(DivisionNode) },
-    };
 
     /// <summary>
     /// Define operator precedence for each operator type.
     /// </summary>
     // Disable private suggestion = dictionary is accessed by the ExpressionTree class
     #pragma warning disable SA1401
-    public readonly Dictionary<string, int> Precedence = new Dictionary<string, int>
+    public readonly Dictionary<string, int> OperatorNodePrecedences;
     #pragma warning restore SA1401
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OperatorNodeFactory"/> class.
+    /// </summary>
+    public OperatorNodeFactory()
     {
-        { AdditionNode.OperatorSymbol, AdditionNode.Precedence },
-        { SubtractionNode.OperatorSymbol, SubtractionNode.Precedence },
-        { MultiplicationNode.OperatorSymbol, MultiplicationNode.Precedence },
-        { DivisionNode.OperatorSymbol, DivisionNode.Precedence },
-    };
+        // Initialize operator type and precedence dictionaries
+        this.OperatorNodeTypes = new Dictionary<string, Type>();
+        this.OperatorNodePrecedences = new Dictionary<string, int>();
+    }
 
     /// <summary>
     /// Factory method for instantiating instances of OperatorNode.

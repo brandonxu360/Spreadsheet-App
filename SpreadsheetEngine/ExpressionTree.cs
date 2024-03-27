@@ -200,8 +200,8 @@ public class ExpressionTree
             {
                 // Handle precedence and parentheses
                 while (operatorStack.Count > 0 &&
-                       this.operatorNodeFactory.Precedence.TryGetValue(operatorStack.Peek(), out var stackPrecedence) &&
-                       this.operatorNodeFactory.Precedence[token] <= stackPrecedence)
+                       this.operatorNodeFactory.OperatorNodePrecedences.TryGetValue(operatorStack.Peek(), out var stackPrecedence) &&
+                       this.operatorNodeFactory.OperatorNodePrecedences[token] <= stackPrecedence)
                 {
                     outputList.Add(operatorStack.Pop());
                 }

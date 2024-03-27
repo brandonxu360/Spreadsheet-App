@@ -491,4 +491,23 @@ internal class ExpressionTreeTests
         Assert.That(expressionTree.VariableDict[variableName1], Is.EqualTo(0));
         Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName2));
     }
+
+    /// <summary>
+    /// Tests normal case that addition, subtraction, multiplication, and division operators were populated.
+    /// </summary>
+    [Test]
+    public void DynamicallyPopulateHandledOperatorsTest()
+    {
+        // Arrange and Act (operators should be populated in OperatorNodeFactory constructor)
+        var operatorNodeFactory = new OperatorNodeFactory();
+
+        // Assert (addition, subtraction, multiplication, and division operators were populated)
+        Assert.Multiple(() =>
+        {
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(AdditionNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(SubtractionNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(MultiplicationNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(DivisionNode)), Is.True);
+        });
+    }
 }
