@@ -205,4 +205,42 @@ internal class SpreadsheetTests
         // B1 value should stay "" (empty)
         Assert.That(cellB1.Value, Is.EqualTo(string.Empty));
     }
+
+    /// <summary>
+    /// Tests cell's ability to take a simple expression input (no variables/references), evaluate, and set the value to the correct result.
+    /// </summary>
+    /// <param name="expression">The string expression as text input.</param>
+    /// <returns>The double evaluated value (the value will be a string, but it will be converted to double for the purposes of this test).</returns>
+    /// <exception cref="Exception">The result was not able to be converted to a double.</exception>
+    [Test]
+    [TestCase("3+7", ExpectedResult = 10)] // Expression with a single add operator
+    [TestCase("3+7+2+1", ExpectedResult = 13)] // Expression with multiple add operators
+    [TestCase("3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
+    [TestCase("3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
+    [TestCase("0/0", ExpectedResult = 0.0 / 0)] // Expression with multiple division operators
+
+    // Testing operator precedence between addition and subtraction vs multiplication and division
+    [TestCase("3+7/4", ExpectedResult = 3.0 + (7.0 / 4.0))]
+    [TestCase("3*2-5/8", ExpectedResult = (3.0 * 2.0) - (5.0 / 8.0))]
+
+    // Testing parenthesis
+    [TestCase("(3+7)/4", ExpectedResult = (3.0 + 7.0) / 4.0)]
+    [TestCase("3/(7+4)", ExpectedResult = 3.0 / (7.0 + 4.0))]
+    public double SpreadsheetEvaluateSimpleExpressionTest(string expression)
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 1);
+        var cell = spreadsheet.GetCell(0, 0);
+
+        // Act and Assert
+        Debug.Assert(cell != null, nameof(cell) + " != null");
+        cell.Text = expression;
+
+        if (!double.TryParse(cell.Value, out var result))
+        {
+            throw new Exception("Non double result");
+        }
+
+        return result;
+    }
 }

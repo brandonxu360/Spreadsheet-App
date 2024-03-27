@@ -493,25 +493,6 @@ internal class ExpressionTreeTests
     }
 
     /// <summary>
-    /// Tests normal case that addition, subtraction, multiplication, and division operators were populated.
-    /// </summary>
-    [Test]
-    public void DynamicallyPopulateHandledOperatorsTest()
-    {
-        // Arrange and Act (operators should be populated in OperatorNodeFactory constructor)
-        var operatorNodeFactory = new OperatorNodeFactory();
-
-        // Assert (addition, subtraction, multiplication, and division operators were populated)
-        Assert.Multiple(() =>
-        {
-            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(AdditionNode)), Is.True);
-            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(SubtractionNode)), Is.True);
-            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(MultiplicationNode)), Is.True);
-            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(DivisionNode)), Is.True);
-        });
-    }
-
-    /// <summary>
     /// Tests the OperatorNodeFactory factory method for instantiating the correct type of OperatorNode.
     /// </summary>
     /// <param name="operatorSymbol">The string symbol for the specific OperatorNode type.</param>
@@ -531,5 +512,24 @@ internal class ExpressionTreeTests
 
         // Assert
         return operatorNode?.GetType();
+    }
+
+    /// <summary>
+    /// Tests normal case that addition, subtraction, multiplication, and division operators were populated.
+    /// </summary>
+    [Test]
+    public void DynamicallyPopulateHandledOperatorsTest()
+    {
+        // Arrange and Act (operators should be populated in OperatorNodeFactory constructor)
+        var operatorNodeFactory = new OperatorNodeFactory();
+
+        // Assert (addition, subtraction, multiplication, and division operators were populated)
+        Assert.Multiple(() =>
+        {
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(AdditionNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(SubtractionNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(MultiplicationNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(DivisionNode)), Is.True);
+        });
     }
 }
