@@ -243,4 +243,30 @@ internal class SpreadsheetTests
 
         return result;
     }
+
+    /// <summary>
+    /// Tests cell's ability to take an expression input with variables/references, evaluate, and set the value to the correct result.
+    /// </summary>
+    public void SpreadsheetEvaluateVariableExpression()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(2, 1);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        var cellB1 = spreadsheet.GetCell(0, 1);
+
+        Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellA1) + " != null");
+
+        // Act
+        cellA1.Text = "20";
+        cellB1.Text = "(2/A1)+3*5";
+
+        if (!double.TryParse(cellB1.Value, out var result))
+        {
+            throw new Exception("Non double result");
+        }
+
+        // Assert
+        Assert.That(result, Is.EqualTo(15.1));
+    }
 }
