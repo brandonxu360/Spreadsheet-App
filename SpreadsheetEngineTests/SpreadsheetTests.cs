@@ -271,4 +271,38 @@ internal class SpreadsheetTests
         // Assert
         Assert.That(result, Is.EqualTo(15.1));
     }
+
+    /// <summary>
+    /// Test the update of a referencing cell value when the referenced cell value updates.
+    /// </summary>
+    /// <param name="initialReferencedValue">The initial value of the referenced cell.</param>
+    /// <param name="finalReferencedValue">The final/updated value of the referenced cell.</param>
+    /// <param name="referencingText">The text of the referencing cell (set to reference the referenced cell).</param>
+    /// <returns>The updated value of the referencing cell.</returns>
+    [Test]
+    [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
+    [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
+    [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
+    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "=A1+5")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+
+    [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
+    public string SpreadsheetUpdateReferencingCellTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
+    {
+        // Arrange (set up referencing and referenced cells)
+        var spreadsheet = new Spreadsheet(1, 2);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        var cellB1 = spreadsheet.GetCell(0, 1);
+
+        Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
+
+        cellA1.Value = initialReferencedValue;
+        cellB1.Text = referencingText;
+
+        // Act (change referenced cell value)
+        cellA1.Value = finalReferencedValue;
+
+        // Assert (referencing cell value updates to reflect new referenced cell value)
+        return cellB1.Value;
+    }
 }
