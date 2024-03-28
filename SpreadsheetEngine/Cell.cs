@@ -20,14 +20,14 @@ using System.Runtime.CompilerServices;
 public abstract class Cell : INotifyPropertyChanged
 {
     /// <summary>
-    /// The encapsulated text of the cell (input of the cell).
-    /// </summary>
-    protected string text;
-
-    /// <summary>
     /// The encapsulated value of the cell (expression-evaluated output of the cell).
     /// </summary>
     protected string value;
+
+    /// <summary>
+    /// The encapsulated text of the cell (input of the cell).
+    /// </summary>
+    private string text;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Cell"/> class.
@@ -67,11 +67,10 @@ public abstract class Cell : INotifyPropertyChanged
     {
         get => this.text;
 
-        set
-        {
+        set =>
+
             // Call OnPropertyChanged if text changes
             this.SetField(ref this.text, value);
-        }
     }
 
     /// <summary>

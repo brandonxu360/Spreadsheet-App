@@ -115,6 +115,15 @@ public class ExpressionTree
     }
 
     /// <summary>
+    /// Gets the list of variable names from the variable dictionary.
+    /// </summary>
+    /// <returns>List of string variable names.</returns>
+    public List<string> GetVariableNames()
+    {
+        return [..this.VariableDict.Keys];
+    }
+
+    /// <summary>
     /// Evaluates the expression to a double value.
     /// </summary>
     /// <returns>Double value that the expression evaluates to.</returns>

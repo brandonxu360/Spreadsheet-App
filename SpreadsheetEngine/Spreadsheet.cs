@@ -5,7 +5,7 @@
 namespace SpreadsheetEngine;
 
 using System.ComponentModel;
-using System.Text.RegularExpressions;
+using System.Globalization;
 
 /// <summary>
 /// The spreadsheet class that will serve as a container for a 2D array of cells. It will also serve
@@ -72,6 +72,28 @@ public class Spreadsheet
     }
 
     /// <summary>
+    /// Returns the value of the cell with the specified name.
+    /// </summary>
+    /// <param name="cellName">The name of the cell (e.g., "A1").</param>
+    /// <returns>The value of the cell.</returns>
+    private string GetCellValue(string cellName)
+    {
+        // Parse the cell name to extract row and column indices
+        var columnIndex = cellName[0] - 'A'; // Convert the column letter to a zero-based index
+        var rowIndex = int.Parse(cellName[1..]) - 1; // Parse the row number and convert to zero-based index
+
+        // Check if the indices are within the bounds of the spreadsheet
+        if (rowIndex < 0 || rowIndex >= this.RowCount || columnIndex < 0 || columnIndex >= this.ColumnCount)
+        {
+            throw new ArgumentException("Cell name is out of range.");
+        }
+
+        // Retrieve the cell object from the 2D array and return its value
+        var cell = this.GetCell(rowIndex, columnIndex);
+        return cell?.Value ?? string.Empty; // Return the cell value or an empty string if the cell is null
+    }
+
+    /// <summary>
     /// Executed when a cell property is changed, will call the cell Value setter which has
     /// its own implementation of setting the cell value.
     /// </summary>
@@ -97,53 +119,54 @@ public class Spreadsheet
 
     private string EvaluateExpression(string expression)
     {
-        // Extract the cell reference from the text (e.g., "=A5" -> "A5")
-        string cellReference = expression.Substring(1); // Remove the '='
+        // Extract the cell expression from the text (e.g., "=A5" -> "A5")
+        var strippedExpression = expression[1..]; // Remove the '='
 
-        // Define the cell reference pattern as 1+ uppercase followed by 1+ digits
-        string cellReferencePattern = "([A-Z]+)([0-9]+)";
-
-        // Assign the reference to a Regex instance
-        Regex cellReferenceRegex = new Regex(cellReferencePattern);
-
-        // Match the input against the reference Regex
-        Match match = cellReferenceRegex.Match(cellReference);
-
-        // Regex for reference is matched
-        if (match.Success)
+        // Try building the expression tree
+        try
         {
-            // Extract the column and row indices from the matched groups
-            string column = match.Groups[1].Value;
-            int rowIndex = int.Parse(match.Groups[2].Value) - 1; // Adjust for 0-based indexing
+            // Build the expression tree using ExpressionTree
+            var expressionTree = new ExpressionTree(strippedExpression);
 
-            // Convert the column letters to a zero-based index
-            int columnIndex = 0;
-            foreach (char c in column)
+            // Get a list of all the variables found when building the ExpressionTree (ExpressionTree's variable dictionary)
+            var references = expressionTree.GetVariableNames();
+
+            // If any of the variable names is a Cell reference (ie. A1, B12), get the value of that cell and set it in the ExpressionTree variable dictionary
+            foreach (var reference in references)
             {
-                columnIndex *= 26; // Multiply by 26 (number of letters in the alphabet)
-                columnIndex += c - 'A' + 1; // Add the numerical value of the letter
+                if (this.GetCellValue(reference) != string.Empty)
+                {
+                    expressionTree.SetVariable(reference, Convert.ToDouble(this.GetCellValue(reference)));
+                }
             }
 
-            columnIndex--; // Adjust for 0-based indexing
+            // Call evaluate on the ExpressionTree and return the value as a string
+            return expressionTree.Evaluate().ToString(CultureInfo.InvariantCulture);
+        }
 
-            // Simply return the original expression if the reference is invalid
-            if (rowIndex < 0 || rowIndex >= this.RowCount || columnIndex < 0 || columnIndex >= this.ColumnCount)
+        // If the expression tree cannot be built because the reference values (variable values) are invalid (do not hold doubles)
+        catch (FormatException)
+        {
+            // Try returning the value of the referenced cell
+            try
             {
+                return this.GetCellValue(strippedExpression);
+            }
+
+            // Invalid reference
+            catch (FormatException)
+            {
+                // Return the original expression
                 return expression;
-            }
-
-            // If the reference is valid, retrieve the cell based on the calculated indices
-            Cell? cell = this.GetCell(rowIndex, columnIndex);
-
-            // Return the value of the referenced cell if it exists
-            if (cell != null)
-            {
-                return cell.Value;
             }
         }
 
-        // Return original expression if reference regex not matched
-        return expression;
+        // Invalid expression (ie. "=A1+")
+        catch (InvalidOperationException)
+        {
+            // Return the original expression
+            return expression;
+        }
     }
 
     private class SpreadsheetCell : Cell
