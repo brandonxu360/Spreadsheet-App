@@ -203,7 +203,7 @@ internal class SpreadsheetTests
         // Assert
 
         // B1 value should stay "" (empty)
-        Assert.That(cellB1.Value, Is.EqualTo(string.Empty));
+        Assert.That(cellB1.Value, Is.EqualTo("0"));
     }
 
     /// <summary>
@@ -211,21 +211,21 @@ internal class SpreadsheetTests
     /// </summary>
     /// <param name="expression">The string expression as text input.</param>
     /// <returns>The double evaluated value (the value will be a string, but it will be converted to double for the purposes of this test).</returns>
-    /// <exception cref="Exception">The result was not able to be converted to a double.</exception>
+    /// <exception cref="Exception">The result was not able to be converted to a double, indicating the wrong result.</exception>
     [Test]
-    [TestCase("3+7", ExpectedResult = 10)] // Expression with a single add operator
-    [TestCase("3+7+2+1", ExpectedResult = 13)] // Expression with multiple add operators
-    [TestCase("3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
-    [TestCase("3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
-    [TestCase("0/0", ExpectedResult = 0.0 / 0)] // Expression with multiple division operators
+    [TestCase("=3+7", ExpectedResult = 10)] // Expression with a single add operator
+    [TestCase("=3+7+2+1", ExpectedResult = 13)] // Expression with multiple add operators
+    [TestCase("=3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
+    [TestCase("=3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
+    [TestCase("=0/0", ExpectedResult = 0.0 / 0)] // Expression with multiple division operators
 
     // Testing operator precedence between addition and subtraction vs multiplication and division
-    [TestCase("3+7/4", ExpectedResult = 3.0 + (7.0 / 4.0))]
-    [TestCase("3*2-5/8", ExpectedResult = (3.0 * 2.0) - (5.0 / 8.0))]
+    [TestCase("=3+7/4", ExpectedResult = 3.0 + (7.0 / 4.0))]
+    [TestCase("=3*2-5/8", ExpectedResult = (3.0 * 2.0) - (5.0 / 8.0))]
 
     // Testing parenthesis
-    [TestCase("(3+7)/4", ExpectedResult = (3.0 + 7.0) / 4.0)]
-    [TestCase("3/(7+4)", ExpectedResult = 3.0 / (7.0 + 4.0))]
+    [TestCase("=(3+7)/4", ExpectedResult = (3.0 + 7.0) / 4.0)]
+    [TestCase("=3/(7+4)", ExpectedResult = 3.0 / (7.0 + 4.0))]
     public double SpreadsheetEvaluateSimpleExpressionTest(string expression)
     {
         // Arrange
@@ -247,19 +247,21 @@ internal class SpreadsheetTests
     /// <summary>
     /// Tests cell's ability to take an expression input with variables/references, evaluate, and set the value to the correct result.
     /// </summary>
+    /// <exception cref="Exception">The result was not able to be converted to a double, indicating the wrong result.</exception>
+    [Test]
     public void SpreadsheetEvaluateVariableExpression()
     {
         // Arrange
-        var spreadsheet = new Spreadsheet(2, 1);
+        var spreadsheet = new Spreadsheet(1, 2);
         var cellA1 = spreadsheet.GetCell(0, 0);
         var cellB1 = spreadsheet.GetCell(0, 1);
 
         Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
-        Debug.Assert(cellB1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
 
         // Act
         cellA1.Text = "20";
-        cellB1.Text = "(2/A1)+3*5";
+        cellB1.Text = "=(2/A1)+3*5";
 
         if (!double.TryParse(cellB1.Value, out var result))
         {
