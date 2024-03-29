@@ -93,7 +93,6 @@ public abstract class Cell : INotifyPropertyChanged
     /// </summary>
     private int ColumnIndex { get; }
 
-
     /// <summary>
     /// Returns the string name of the cell based on its row and column indices.
     /// </summary>

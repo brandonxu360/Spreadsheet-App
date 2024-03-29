@@ -60,7 +60,7 @@ public class OperatorNodeFactory
     {
         if (this.OperatorNodeTypes.TryGetValue(symbol, out var operatorNodeType))
         {
-            return (OperatorNode)Activator.CreateInstance(operatorNodeType)!;
+            return (OperatorNode?)Activator.CreateInstance(operatorNodeType);
         }
 
         // Return null if the operator was not found in the operator dictionary
