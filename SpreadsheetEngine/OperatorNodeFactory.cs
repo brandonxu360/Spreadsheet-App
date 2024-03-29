@@ -93,11 +93,8 @@ public class OperatorNodeFactory
                     // Get the precedence of the Operator
                     object? precedenceValue = precedenceField.GetValue(type);
 
-                    if (operatorSymbolValue is string && precedenceValue is int)
+                    if (operatorSymbolValue is string operatorSymbol && precedenceValue is int precedence)
                     {
-                        string operatorSymbol = (string)operatorSymbolValue;
-                        int precedence = (int)precedenceValue;
-
                         // Invoke the function passed as parameter with the operator symbol and class
                         onOperator(operatorSymbol, type, precedence);
                     }

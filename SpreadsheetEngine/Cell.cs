@@ -39,6 +39,7 @@ public abstract class Cell : INotifyPropertyChanged
         this.RowIndex = rowIndex;
         this.ColumnIndex = columnIndex;
 
+        this.ReferencedCellNames = new HashSet<string>();
         this.text = string.Empty;
         this.value = string.Empty;
     }
@@ -59,6 +60,11 @@ public abstract class Cell : INotifyPropertyChanged
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public int ColumnIndex { get; }
+
+    /// <summary>
+    /// Gets the set of cells that this cell is currently referencing/subscribed to.
+    /// </summary>
+    public HashSet<string> ReferencedCellNames { get; }
 
     /// <summary>
     /// Gets or sets the text of the cell.
@@ -86,6 +92,32 @@ public abstract class Cell : INotifyPropertyChanged
             this.SetValue(value);
             this.OnPropertyChanged();
         }
+    }
+
+    /// <summary>
+    /// Returns the string name of the cell based on its row and column indices.
+    /// </summary>
+    /// <returns>The string name of the cell (e.g., "A1").</returns>
+    public string GetName()
+    {
+        // Convert column index to letter (A = 0, B = 1, ...)
+        var columnLetter = (char)('A' + this.ColumnIndex);
+
+        // Add 1 to row index (1-based index)
+        var rowIndex = this.RowIndex + 1;
+
+        // Concatenate column letter and row index to form the cell name
+        return $"{columnLetter}{rowIndex}";
+    }
+
+    /// <summary>
+    /// Method to reevaluate the cell value when the referenced cell value is changed.
+    /// </summary>
+    /// <param name="sender">The sender object.</param>
+    /// <param name="e">PropertyChangedEventArgs arguments.</param>
+    public void OnReferencedCellPropertyChanged(object? sender, PropertyChangedEventArgs? e)
+    {
+        this.OnPropertyChanged(nameof(this.Text));
     }
 
     /// <summary>

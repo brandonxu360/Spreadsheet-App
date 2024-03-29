@@ -66,17 +66,17 @@ public class Spreadsheet
     /// <param name="rowIndex">The row index of the cell.</param>
     /// <param name="columnIndex">The column index of the cell.</param>
     /// <returns>The Cell object at the column and cell index.</returns>
-    public Cell? GetCell(int rowIndex, int columnIndex)
+    public Cell GetCell(int rowIndex, int columnIndex)
     {
-        return this.cells[rowIndex, columnIndex] ?? null;
+        return this.cells[rowIndex, columnIndex] ?? throw new IndexOutOfRangeException();
     }
 
     /// <summary>
-    /// Returns the value of the cell with the specified name.
+    /// Returns the cell of at the specified column and row index.
     /// </summary>
-    /// <param name="cellName">The name of the cell (e.g., "A1").</param>
-    /// <returns>The value of the cell.</returns>
-    private string GetCellValue(string cellName)
+    /// <param name="cellName">The cell name/reference (ie. "A1").</param>
+    /// <returns>The Cell object at the specified location.</returns>
+    private Cell GetCell(string cellName)
     {
         // Parse the cell name to extract row and column indices
         var columnIndex = cellName[0] - 'A'; // Convert the column letter to a zero-based index
@@ -88,9 +88,8 @@ public class Spreadsheet
             throw new ArgumentException("Cell name is out of range.");
         }
 
-        // Retrieve the cell object from the 2D array and return its value
-        var cell = this.GetCell(rowIndex, columnIndex);
-        return cell?.Value ?? string.Empty; // Return the cell value or an empty string if the cell is null
+        // Retrieve the cell object from the 2D array and return it
+        return this.GetCell(rowIndex, columnIndex);
     }
 
     /// <summary>
@@ -106,7 +105,7 @@ public class Spreadsheet
             // Expression
             if (cell.Text.StartsWith('=') && cell.Text.Length > 1)
             {
-                cell.Value = this.EvaluateExpression(cell.Text);
+                cell.Value = this.EvaluateExpression(cell.Text, cell);
             }
 
             // Plaintext
@@ -117,55 +116,87 @@ public class Spreadsheet
         }
     }
 
-    private string EvaluateExpression(string expression)
+    private string EvaluateExpression(string expression, Cell sender)
     {
         // Extract the cell expression from the text (e.g., "=A5" -> "A5")
         var strippedExpression = expression[1..]; // Remove the '='
 
-        // Try building the expression tree
+        // Unsubscribe the cell from all cells previously subscribed to (will resubscribe depending on new expression references)
+        foreach (var reference in sender.ReferencedCellNames)
+        {
+            this.GetCell(reference).PropertyChanged -= sender.OnReferencedCellPropertyChanged;
+            sender.ReferencedCellNames.Remove(reference);
+        }
+
+        // Try to build and evaluate an expression tree
         try
         {
             // Build the expression tree using ExpressionTree
             var expressionTree = new ExpressionTree(strippedExpression);
 
-            // Get a list of all the variables found when building the ExpressionTree (ExpressionTree's variable dictionary)
+            // Get a list of all the references/variables found when building the ExpressionTree (ExpressionTree's variable dictionary)
             var references = expressionTree.GetVariableNames();
 
-            // If any of the variable names is a Cell reference (ie. A1, B12), get the value of that cell and set it in the ExpressionTree variable dictionary
+            // If simple single reference to cell, subscribe to cell and return the value of the referenced cell (or zero if string is empty)
+            if (references.Count > 0 && strippedExpression == references.First())
+            {
+                this.SubscribeToReferencedCells(sender, references.First());
+                var referencedValue = this.GetCell(references.First()).Value;
+                return referencedValue != string.Empty ? referencedValue : "0";
+            }
+
+            // Otherwise, iterate through each reference to subscribe to the cell, set the variable value, and return the final evaluated value
             foreach (var reference in references)
             {
-                if (this.GetCellValue(reference) != string.Empty)
+                // Subscribe to the references (variables) found when building the tree
+                this.SubscribeToReferencedCells(sender, reference);
+
+                // Get the value from the referenced cell
+                var stringValue = this.GetCell(reference).Value;
+
+                // If the cell value is valid (double), set variable accordingly
+                if (double.TryParse(stringValue, out var doubleValue))
                 {
-                    expressionTree.SetVariable(reference, Convert.ToDouble(this.GetCellValue(reference)));
+                    expressionTree.SetVariable(reference, doubleValue);
+                }
+
+                // If the cell value is empty, set variable to default value (0)
+                else if (stringValue == string.Empty)
+                {
+                    expressionTree.SetVariable(reference, 0);
+                }
+                else
+                {
+                    throw new Exception("#Invalid expression");
                 }
             }
 
-            // Call evaluate on the ExpressionTree and return the value as a string
+            // Finally, call evaluate on the ExpressionTree and return the value as a string
             return expressionTree.Evaluate().ToString(CultureInfo.InvariantCulture);
         }
-
-        // If the expression tree cannot be built because the reference values (variable values) are invalid (do not hold doubles)
-        catch (FormatException)
+        catch (Exception e)
         {
-            // Try returning the value of the referenced cell
-            try
+            // Handle Invalid expression value
+            if (e.Message == "#Invalid expression")
             {
-                return this.GetCellValue(strippedExpression);
+                return e.Message;
             }
 
-            // Invalid reference
-            catch (FormatException)
-            {
-                // Return the original expression
-                return expression;
-            }
+            return "Unknown error encountered";
         }
+    }
 
-        // Invalid expression (ie. "=A1+")
-        catch (InvalidOperationException)
+    /// <summary>
+    /// Subscribe referencing cell to referenced cell event (if not already subscribed).
+    /// </summary>
+    /// <param name="sender">The referencing cell (subscriber).</param>
+    /// <param name="reference">The referenced cell (notifier).</param>
+    private void SubscribeToReferencedCells(Cell sender, string reference)
+    {
+        if (!sender.ReferencedCellNames.Contains(reference))
         {
-            // Return the original expression
-            return expression;
+            this.GetCell(reference).PropertyChanged += sender.OnReferencedCellPropertyChanged;
+            sender.ReferencedCellNames.Add(reference);
         }
     }
 

@@ -249,6 +249,9 @@ internal class SpreadsheetTests
     /// <summary>
     /// Tests cell's ability to take an expression input with variables/references, evaluate, and set the value to the correct result.
     /// </summary>
+    /// <param name="variableText">The string input for the variable value.</param>
+    /// <param name="expressionText">The string input for the expression that uses the variable.</param>
+    /// <returns>The double result of the expression evaluation.</returns>
     /// <exception cref="Exception">The result was not able to be converted to a double, indicating the wrong result.</exception>
     [Test]
     [TestCase("20", "=(2/A1)+3*5", ExpectedResult = 15.1)] // Normal case
@@ -287,10 +290,17 @@ internal class SpreadsheetTests
     [Test]
     [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
     [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
-    [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
-    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
-    [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
-    public string SpreadsheetUpdateReferencingCellTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
+    [TestCase("20", "hello I am not a double", "=A1",
+        ExpectedResult =
+            "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
+    [TestCase("20", "hello I am not a double", "=A1+5",
+        ExpectedResult =
+            "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+    [TestCase("hello", "20", "=A1+5",
+        ExpectedResult =
+            "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
+    public string SpreadsheetUpdateReferencingCellTest(string initialReferencedValue, string finalReferencedValue,
+        string referencingText)
     {
         // Arrange (set up referencing and referenced cells)
         var spreadsheet = new Spreadsheet(1, 2);
@@ -320,10 +330,17 @@ internal class SpreadsheetTests
     [Test]
     [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
     [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
-    [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
-    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
-    [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
-    public string SpreadsheetUpdateChainedReferencingCellsTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
+    [TestCase("20", "hello I am not a double", "=A1",
+        ExpectedResult =
+            "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
+    [TestCase("20", "hello I am not a double", "=A1+5",
+        ExpectedResult =
+            "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+    [TestCase("hello", "20", "=A1+5",
+        ExpectedResult =
+            "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
+    public string SpreadsheetUpdateChainedReferencingCellsTest(string initialReferencedValue,
+        string finalReferencedValue, string referencingText)
     {
         // Arrange (set up referencing and referenced cells)
         var spreadsheet = new Spreadsheet(1, 3);
