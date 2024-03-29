@@ -20,14 +20,14 @@ using System.Runtime.CompilerServices;
 public abstract class Cell : INotifyPropertyChanged
 {
     /// <summary>
-    /// The encapsulated text of the cell (input of the cell).
-    /// </summary>
-    protected string text;
-
-    /// <summary>
     /// The encapsulated value of the cell (expression-evaluated output of the cell).
     /// </summary>
     protected string value;
+
+    /// <summary>
+    /// The encapsulated text of the cell (input of the cell).
+    /// </summary>
+    private string text;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Cell"/> class.
@@ -39,6 +39,7 @@ public abstract class Cell : INotifyPropertyChanged
         this.RowIndex = rowIndex;
         this.ColumnIndex = columnIndex;
 
+        this.ReferencedCellNames = new HashSet<string>();
         this.text = string.Empty;
         this.value = string.Empty;
     }
@@ -49,16 +50,9 @@ public abstract class Cell : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
-    /// Gets the row index of the cell in the grid.
+    /// Gets the set of cells that this cell is currently referencing/subscribed to.
     /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public int RowIndex { get; }
-
-    /// <summary>
-    /// Gets the column index of the cell in the grid.
-    /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public int ColumnIndex { get; }
+    public HashSet<string> ReferencedCellNames { get; }
 
     /// <summary>
     /// Gets or sets the text of the cell.
@@ -67,11 +61,10 @@ public abstract class Cell : INotifyPropertyChanged
     {
         get => this.text;
 
-        set
-        {
+        set =>
+
             // Call OnPropertyChanged if text changes
             this.SetField(ref this.text, value);
-        }
     }
 
     /// <summary>
@@ -81,12 +74,49 @@ public abstract class Cell : INotifyPropertyChanged
     {
         get => this.value;
 
+        // TODO: Do not expose value setter
         set
         {
             // Must be implemented in children class
             this.SetValue(value);
             this.OnPropertyChanged();
         }
+    }
+
+    /// <summary>
+    /// Gets the row index of the cell in the grid.
+    /// </summary>
+    private int RowIndex { get; }
+
+    /// <summary>
+    /// Gets the column index of the cell in the grid.
+    /// </summary>
+    private int ColumnIndex { get; }
+
+    /// <summary>
+    /// Returns the string name of the cell based on its row and column indices.
+    /// </summary>
+    /// <returns>The string name of the cell (e.g., "A1").</returns>
+    public string GetName()
+    {
+        // Convert column index to letter (A = 0, B = 1, ...)
+        var columnLetter = (char)('A' + this.ColumnIndex);
+
+        // Add 1 to row index (1-based index)
+        var rowIndex = this.RowIndex + 1;
+
+        // Concatenate column letter and row index to form the cell name
+        return $"{columnLetter}{rowIndex}";
+    }
+
+    /// <summary>
+    /// Method to trigger reevaluation of the cell value when the referenced cell value is changed.
+    /// </summary>
+    /// <param name="sender">The sender object.</param>
+    /// <param name="e">PropertyChangedEventArgs arguments.</param>
+    public void OnReferencedCellPropertyChanged(object? sender, PropertyChangedEventArgs? e)
+    {
+        this.OnPropertyChanged(nameof(this.Text));
     }
 
     /// <summary>

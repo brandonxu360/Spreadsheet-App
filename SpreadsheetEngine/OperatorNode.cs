@@ -12,10 +12,14 @@ namespace SpreadsheetEngine;
 /// </summary>
 public abstract class OperatorNode : ExpTreeNode
 {
+    // TODO: LeftChild node should be protected
+
     /// <summary>
     /// The reference to the left child node.
     /// </summary>
     public ExpTreeNode? LeftChild;
+
+    // TODO: RightChild node should be protected
 
     /// <summary>
     /// The reference to the right child node.

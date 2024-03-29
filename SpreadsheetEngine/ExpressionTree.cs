@@ -46,7 +46,7 @@ public class ExpressionTree
     public ExpressionTree(string expression)
     {
         // Initialize the infix expression to a default expression
-        this.InfixStringExpression = "A1+B1+C1"; // This property will immediately be updated through SetExpressTree
+        this.InfixStringExpression = "A1+B1+C1"; // This property will immediately be updated through SetExpressionTree
 
         // Initialize an instance of the OperatorNodeFactory
         this.operatorNodeFactory = new OperatorNodeFactory();
@@ -112,6 +112,15 @@ public class ExpressionTree
 
         // Update or add new variable with the given name and value
         this.VariableDict[variableName] = variableValue;
+    }
+
+    /// <summary>
+    /// Gets the list of variable names from the variable dictionary.
+    /// </summary>
+    /// <returns>List of string variable names.</returns>
+    public List<string> GetVariableNames()
+    {
+        return [..this.VariableDict.Keys];
     }
 
     /// <summary>
@@ -200,8 +209,8 @@ public class ExpressionTree
             {
                 // Handle precedence and parentheses
                 while (operatorStack.Count > 0 &&
-                       this.operatorNodeFactory.Precedence.TryGetValue(operatorStack.Peek(), out var stackPrecedence) &&
-                       this.operatorNodeFactory.Precedence[token] <= stackPrecedence)
+                       this.operatorNodeFactory.OperatorNodePrecedences.TryGetValue(operatorStack.Peek(), out var stackPrecedence) &&
+                       this.operatorNodeFactory.OperatorNodePrecedences[token] <= stackPrecedence)
                 {
                     outputList.Add(operatorStack.Pop());
                 }

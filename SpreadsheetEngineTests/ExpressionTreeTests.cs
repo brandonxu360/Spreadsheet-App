@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System.Diagnostics;
+
 namespace SpreadsheetEngineTests;
 
 using System.Reflection;
@@ -246,7 +248,7 @@ internal class ExpressionTreeTests
         }
 
         // Act
-        var result = (List<string>)tokenizeMethod.Invoke(expressionTree, new object[] { expression })!;
+        var result = (List<string>?)tokenizeMethod.Invoke(expressionTree, new object[] { expression });
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedTokens));
@@ -273,7 +275,7 @@ internal class ExpressionTreeTests
         }
 
         // Act
-        var result = (List<string>)tokenizeMethod.Invoke(expressionTree, new object[] { expression })!;
+        var result = (List<string>?)tokenizeMethod.Invoke(expressionTree, new object[] { expression });
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedTokens));
@@ -314,7 +316,7 @@ internal class ExpressionTreeTests
         {
             // Act
             var result =
-                (List<string>)convertInfixToPostfixMethod.Invoke(expressionTree, new object[] { infixExpression.Key })!;
+                (List<string>?)convertInfixToPostfixMethod.Invoke(expressionTree, new object[] { infixExpression.Key });
 
             // Assert
             Assert.That(result, Is.EqualTo(infixExpression.Value));
@@ -364,13 +366,13 @@ internal class ExpressionTreeTests
 
         // Check left child (Should be AdditionNode)
         var expectedLeftChild = expectedRoot.LeftChild;
-        var actualLeftChild = ((AdditionNode)actualRoot!).LeftChild; // Should be AdditionNode
+        var actualLeftChild = ((AdditionNode?)actualRoot)?.LeftChild; // Should be AdditionNode
 
         Assert.That(actualLeftChild?.GetType(), Is.EqualTo(expectedLeftChild.GetType()));
 
         // Check right child (Should be ValueNode(3))
         var expectedRightChild = expectedTree.RightChild;
-        var actualRightChild = ((AdditionNode)actualRoot).RightChild; // Should be ValueNode with value 3
+        var actualRightChild = ((AdditionNode?)actualRoot)?.RightChild; // Should be ValueNode with value 3
         Assert.Multiple(() =>
         {
             Assert.That(actualRightChild?.GetType(), Is.EqualTo(expectedRightChild.GetType()));
@@ -378,21 +380,21 @@ internal class ExpressionTreeTests
         });
 
         // Check left-left child
-        var expectedLeftLeftChild = ((AdditionNode)expectedTree.LeftChild!).LeftChild;
-        var actualLeftLeftChild = ((AdditionNode)((AdditionNode)actualRoot).LeftChild!).LeftChild;
+        var expectedLeftLeftChild = ((AdditionNode)expectedTree.LeftChild).LeftChild;
+        var actualLeftLeftChild = ((AdditionNode?)((AdditionNode?)actualRoot)?.LeftChild)?.LeftChild;
         Assert.Multiple(() =>
         {
-            Assert.That(actualLeftLeftChild?.GetType(), Is.EqualTo(expectedLeftLeftChild!.GetType()));
-            Assert.That(actualLeftLeftChild?.Evaluate(), Is.EqualTo(expectedLeftLeftChild.Evaluate()));
+            Assert.That(actualLeftLeftChild?.GetType(), Is.EqualTo(expectedLeftLeftChild?.GetType()));
+            Assert.That(actualLeftLeftChild?.Evaluate(), Is.EqualTo(expectedLeftLeftChild?.Evaluate()));
         });
 
         // Check left-right child
-        var expectedLeftRightChild = ((AdditionNode)expectedTree.LeftChild!).RightChild;
-        var actualLeftRightChild = ((AdditionNode)((AdditionNode)actualRoot).LeftChild!).RightChild;
+        var expectedLeftRightChild = ((AdditionNode)expectedTree.LeftChild).RightChild;
+        var actualLeftRightChild = ((AdditionNode?)((AdditionNode?)actualRoot)?.LeftChild)?.RightChild;
         Assert.Multiple(() =>
         {
-            Assert.That(actualLeftRightChild?.GetType(), Is.EqualTo(expectedLeftRightChild!.GetType()));
-            Assert.That(actualLeftRightChild?.Evaluate(), Is.EqualTo(expectedLeftRightChild.Evaluate()));
+            Assert.That(actualLeftRightChild?.GetType(), Is.EqualTo(expectedLeftRightChild?.GetType()));
+            Assert.That(actualLeftRightChild?.Evaluate(), Is.EqualTo(expectedLeftRightChild?.Evaluate()));
         });
     }
 
@@ -490,5 +492,46 @@ internal class ExpressionTreeTests
         // Assert (values should be set to default values or no longer members of the variable dictionary)
         Assert.That(expressionTree.VariableDict[variableName1], Is.EqualTo(0));
         Assert.IsFalse(expressionTree.VariableDict.ContainsKey(variableName2));
+    }
+
+    /// <summary>
+    /// Tests the OperatorNodeFactory factory method for instantiating the correct type of OperatorNode.
+    /// </summary>
+    /// <param name="operatorSymbol">The string symbol for the specific OperatorNode type.</param>
+    /// <returns>The type of the OperatorNode instantiated.</returns>
+    [Test]
+    [TestCase("+", ExpectedResult = typeof(AdditionNode))] // Addition operator test
+    [TestCase("-", ExpectedResult = typeof(SubtractionNode))] // Subtraction operator test
+    [TestCase("*", ExpectedResult = typeof(MultiplicationNode))] // Multiplication operator test
+    [TestCase("/", ExpectedResult = typeof(DivisionNode))] // Division operator test
+    public Type? OperatorNodeFactoryTest(string operatorSymbol)
+    {
+        // Arrange
+        var operatorNodeFactory = new OperatorNodeFactory();
+
+        // Act
+        var operatorNode = operatorNodeFactory.CreateOperatorNode(operatorSymbol);
+
+        // Assert
+        return operatorNode?.GetType();
+    }
+
+    /// <summary>
+    /// Tests normal case that addition, subtraction, multiplication, and division operators were populated.
+    /// </summary>
+    [Test]
+    public void DynamicallyPopulateHandledOperatorsTest()
+    {
+        // Arrange and Act (operators should be populated in OperatorNodeFactory constructor)
+        var operatorNodeFactory = new OperatorNodeFactory();
+
+        // Assert (addition, subtraction, multiplication, and division operators were populated)
+        Assert.Multiple(() =>
+        {
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(AdditionNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(SubtractionNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(MultiplicationNode)), Is.True);
+            Assert.That(operatorNodeFactory.OperatorNodeTypes.ContainsValue(typeof(DivisionNode)), Is.True);
+        });
     }
 }

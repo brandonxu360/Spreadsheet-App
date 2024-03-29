@@ -5,7 +5,7 @@
 namespace SpreadsheetEngine;
 
 using System.ComponentModel;
-using System.Text.RegularExpressions;
+using System.Globalization;
 
 /// <summary>
 /// The spreadsheet class that will serve as a container for a 2D array of cells. It will also serve
@@ -53,12 +53,12 @@ public class Spreadsheet
     /// <summary>
     /// Gets the number of columns in the spreadsheet.
     /// </summary>
-    public int ColumnCount { get; }
+    private int ColumnCount { get; }
 
     /// <summary>
     /// Gets the number of rows in the spreadsheet.
     /// </summary>
-    public int RowCount { get; }
+    private int RowCount { get; }
 
     /// <summary>
     /// Returns the cell of at the specified column and row index.
@@ -66,9 +66,30 @@ public class Spreadsheet
     /// <param name="rowIndex">The row index of the cell.</param>
     /// <param name="columnIndex">The column index of the cell.</param>
     /// <returns>The Cell object at the column and cell index.</returns>
-    public Cell? GetCell(int rowIndex, int columnIndex)
+    public Cell GetCell(int rowIndex, int columnIndex)
     {
-        return this.cells[rowIndex, columnIndex] ?? null;
+        return this.cells[rowIndex, columnIndex] ?? throw new IndexOutOfRangeException();
+    }
+
+    /// <summary>
+    /// Returns the cell of at the specified column and row index.
+    /// </summary>
+    /// <param name="cellName">The cell name/reference (ie. "A1").</param>
+    /// <returns>The Cell object at the specified location.</returns>
+    private Cell GetCell(string cellName)
+    {
+        // Parse the cell name to extract row and column indices
+        var columnIndex = cellName[0] - 'A'; // Convert the column letter to a zero-based index
+        var rowIndex = int.Parse(cellName[1..]) - 1; // Parse the row number and convert to zero-based index
+
+        // Check if the indices are within the bounds of the spreadsheet
+        if (rowIndex < 0 || rowIndex >= this.RowCount || columnIndex < 0 || columnIndex >= this.ColumnCount)
+        {
+            throw new ArgumentException("Cell name is out of range.");
+        }
+
+        // Retrieve the cell object from the 2D array and return it
+        return this.GetCell(rowIndex, columnIndex);
     }
 
     /// <summary>
@@ -84,7 +105,7 @@ public class Spreadsheet
             // Expression
             if (cell.Text.StartsWith('=') && cell.Text.Length > 1)
             {
-                cell.Value = this.EvaluateExpression(cell.Text);
+                cell.Value = this.EvaluateExpression(cell.Text, cell);
             }
 
             // Plaintext
@@ -95,57 +116,100 @@ public class Spreadsheet
         }
     }
 
-    private string EvaluateExpression(string expression)
+    /// <summary>
+    /// Attempts to build and evaluate the value of the expression (indicated with an = sign), and handles subscribing and unsubscribing referencing cells from referenced
+    /// cell events.
+    /// </summary>
+    /// <param name="expression">The string expression input taken directly from the cell text (includes the =).</param>
+    /// <param name="sender">The cell that had its property changed.</param>
+    /// <returns>The string representation for the evaluation of the expression.</returns>
+    /// <exception cref="Exception">Any errors encountered during the building/evaluating of the expression will return "#Invalid expression" code.</exception>
+    private string EvaluateExpression(string expression, Cell sender)
     {
-        // Extract the cell reference from the text (e.g., "=A5" -> "A5")
-        string cellReference = expression.Substring(1); // Remove the '='
+        // Extract the cell expression from the text (e.g., "=A5" -> "A5")
+        var strippedExpression = expression[1..]; // Remove the '='
 
-        // Define the cell reference pattern as 1+ uppercase followed by 1+ digits
-        string cellReferencePattern = "([A-Z]+)([0-9]+)";
-
-        // Assign the reference to a Regex instance
-        Regex cellReferenceRegex = new Regex(cellReferencePattern);
-
-        // Match the input against the reference Regex
-        Match match = cellReferenceRegex.Match(cellReference);
-
-        // Regex for reference is matched
-        if (match.Success)
+        // Unsubscribe the cell from all cells previously subscribed to (will resubscribe depending on new expression references)
+        foreach (var reference in sender.ReferencedCellNames)
         {
-            // Extract the column and row indices from the matched groups
-            string column = match.Groups[1].Value;
-            int rowIndex = int.Parse(match.Groups[2].Value) - 1; // Adjust for 0-based indexing
-
-            // Convert the column letters to a zero-based index
-            int columnIndex = 0;
-            foreach (char c in column)
-            {
-                columnIndex *= 26; // Multiply by 26 (number of letters in the alphabet)
-                columnIndex += c - 'A' + 1; // Add the numerical value of the letter
-            }
-
-            columnIndex--; // Adjust for 0-based indexing
-
-            // Simply return the original expression if the reference is invalid
-            if (rowIndex < 0 || rowIndex >= this.RowCount || columnIndex < 0 || columnIndex >= this.ColumnCount)
-            {
-                return expression;
-            }
-
-            // If the reference is valid, retrieve the cell based on the calculated indices
-            Cell? cell = this.GetCell(rowIndex, columnIndex);
-
-            // Return the value of the referenced cell if it exists
-            if (cell != null)
-            {
-                return cell.Value;
-            }
+            this.GetCell(reference).PropertyChanged -= sender.OnReferencedCellPropertyChanged;
+            sender.ReferencedCellNames.Remove(reference);
         }
 
-        // Return original expression if reference regex not matched
-        return expression;
+        // Try to build and evaluate an expression tree
+        try
+        {
+            // Build the expression tree using ExpressionTree
+            var expressionTree = new ExpressionTree(strippedExpression);
+
+            // Get a list of all the references/variables found when building the ExpressionTree (ExpressionTree's variable dictionary)
+            var references = expressionTree.GetVariableNames();
+
+            // If simple single reference to cell, subscribe to cell and return the value of the referenced cell (or zero if string is empty)
+            if (references.Count > 0 && strippedExpression == references.First())
+            {
+                this.SubscribeToReferencedCells(sender, references.First());
+                var referencedValue = this.GetCell(references.First()).Value;
+                return referencedValue != string.Empty ? referencedValue : "0";
+            }
+
+            // Otherwise, iterate through each reference to subscribe to the cell, set the variable value, and return the final evaluated value
+            foreach (var reference in references)
+            {
+                // Subscribe to the references (variables) found when building the tree
+                this.SubscribeToReferencedCells(sender, reference);
+
+                // Get the value from the referenced cell
+                var stringValue = this.GetCell(reference).Value;
+
+                // If the cell value is valid (double), set variable accordingly
+                if (double.TryParse(stringValue, out var doubleValue))
+                {
+                    expressionTree.SetVariable(reference, doubleValue);
+                }
+
+                // If the cell value is empty, set variable to default value (0)
+                else if (stringValue == string.Empty)
+                {
+                    expressionTree.SetVariable(reference, 0);
+                }
+                else
+                {
+                    throw new Exception("#Invalid expression");
+                }
+            }
+
+            // Finally, call evaluate on the ExpressionTree and return the value as a string
+            return expressionTree.Evaluate().ToString(CultureInfo.InvariantCulture);
+        }
+
+        // Return error for invalid expression whenever expression fails to build/evaluate
+        catch (Exception)
+        {
+            return "#Invalid expression";
+        }
     }
 
+    /// <summary>
+    /// Subscribe referencing cell to referenced cell event (if not already subscribed).
+    /// </summary>
+    /// <param name="sender">The referencing cell (subscriber).</param>
+    /// <param name="reference">The referenced cell (notifier).</param>
+    private void SubscribeToReferencedCells(Cell sender, string reference)
+    {
+        // If the referenced cell is already subscribed to (as indicated in the cell's ReferencedCellNames property), do not subscribe again
+        if (sender.ReferencedCellNames.Contains(reference))
+        {
+            return;
+        }
+
+        this.GetCell(reference).PropertyChanged += sender.OnReferencedCellPropertyChanged;
+        sender.ReferencedCellNames.Add(reference);
+    }
+
+    /// <summary>
+    /// Embedded SpreadsheetCell to expose the setter privileges only to the Spreadsheet class.
+    /// </summary>
     private class SpreadsheetCell : Cell
     {
         /// <summary>
@@ -158,6 +222,10 @@ public class Spreadsheet
         {
         }
 
+        /// <summary>
+        /// Overridden setter for the value of a cell.
+        /// </summary>
+        /// <param name="newValue">The new string to set the value to.</param>
         protected override void SetValue(string newValue)
         {
             this.value = newValue;

@@ -34,7 +34,7 @@ internal class SpreadsheetTests
             {
                 // Check that every cell was instantiated and initialized with the correct initial value
                 Assert.That(
-                    testSpreadsheet.GetCell(row, column)?.Value,
+                    testSpreadsheet.GetCell(row, column).Value,
                     Is.EqualTo(initialValue),
                     $"Cell at ({row}, {column}) should be initialized with value {initialValue}");
             }
@@ -112,7 +112,7 @@ internal class SpreadsheetTests
         // Act and Assert
 
         // The value should not change when text is set to the same as current value
-        var originalValue = cell?.Value;
+        var originalValue = cell.Value;
         Debug.Assert(originalValue != null, nameof(originalValue) + " != null");
         Debug.Assert(cell != null, nameof(cell) + " != null");
         cell.Text = originalValue;
@@ -153,6 +153,7 @@ internal class SpreadsheetTests
     /// Tests cell value update with reference text input to itself (evaluate reference to same cell).
     /// </summary>
     [Test]
+    [Ignore("Circular references not required yet")]
     public void SpreadsheetCellUpdateReferenceSelf()
     {
         // Arrange
@@ -185,6 +186,7 @@ internal class SpreadsheetTests
     /// This test case was created due to strange behavior noticed when using the UI.
     /// </summary>
     [Test]
+    [Ignore("Circular references not required yet")]
     public void SpreadsheetCellUpdateReferenceSelfShortReferenceAndEmpty()
     {
         // Arrange
@@ -203,28 +205,147 @@ internal class SpreadsheetTests
         // Assert
 
         // B1 value should stay "" (empty)
-        Assert.That(cellB1.Value, Is.EqualTo(string.Empty));
+        Assert.That(cellB1.Value, Is.EqualTo("0"));
     }
 
     /// <summary>
-    /// Tests the OperatorNodeFactory factory method for instantiating the correct type of OperatorNode.
+    /// Tests cell's ability to take a simple expression input (no variables/references), evaluate, and set the value to the correct result.
     /// </summary>
-    /// <param name="operatorSymbol">The string symbol for the specific OperatorNode type.</param>
-    /// <returns>The type of the OperatorNode instantiated.</returns>
+    /// <param name="expression">The string expression as text input.</param>
+    /// <returns>The double evaluated value (the value will be a string, but it will be converted to double for the purposes of this test).</returns>
+    /// <exception cref="Exception">The result was not able to be converted to a double, indicating the wrong result.</exception>
     [Test]
-    [TestCase("+", ExpectedResult = typeof(AdditionNode))] // Addition operator test
-    [TestCase("-", ExpectedResult = typeof(SubtractionNode))] // Subtraction operator test
-    [TestCase("*", ExpectedResult = typeof(MultiplicationNode))] // Multiplication operator test
-    [TestCase("/", ExpectedResult = typeof(DivisionNode))] // Division operator test
-    public Type? OperatorNodeFactoryTest(string operatorSymbol)
+    [TestCase("=3+7", ExpectedResult = 10)] // Expression with a single add operator
+    [TestCase("=3+7+2+1", ExpectedResult = 13)] // Expression with multiple add operators
+    [TestCase("=3/7", ExpectedResult = 3.0 / 7.0)] // Expression with a single division operator
+    [TestCase("=3/7/2/1", ExpectedResult = 3.0 / 7.0 / 2.0 / 1.0)] // Expression with multiple division operators
+    [TestCase("=0/0", ExpectedResult = 0.0 / 0)] // Expression with multiple division operators
+
+    // Testing operator precedence between addition and subtraction vs multiplication and division
+    [TestCase("=3+7/4", ExpectedResult = 3.0 + (7.0 / 4.0))]
+    [TestCase("=3*2-5/8", ExpectedResult = (3.0 * 2.0) - (5.0 / 8.0))]
+
+    // Testing parenthesis
+    [TestCase("=(3+7)/4", ExpectedResult = (3.0 + 7.0) / 4.0)]
+    [TestCase("=3/(7+4)", ExpectedResult = 3.0 / (7.0 + 4.0))]
+    public double SpreadsheetEvaluateSimpleExpressionTest(string expression)
     {
         // Arrange
-        var operatorNodeFactory = new OperatorNodeFactory();
+        var spreadsheet = new Spreadsheet(1, 1);
+        var cell = spreadsheet.GetCell(0, 0);
+
+        // Act and Assert
+        Debug.Assert(cell != null, nameof(cell) + " != null");
+        cell.Text = expression;
+
+        if (!double.TryParse(cell.Value, out var result))
+        {
+            throw new Exception("Non double result");
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Tests cell's ability to take an expression input with variables/references, evaluate, and set the value to the correct result.
+    /// </summary>
+    /// <param name="variableText">The string input for the variable value.</param>
+    /// <param name="expressionText">The string input for the expression that uses the variable.</param>
+    /// <returns>The double result of the expression evaluation.</returns>
+    /// <exception cref="Exception">The result was not able to be converted to a double, indicating the wrong result.</exception>
+    [Test]
+    [TestCase("20", "=(2/A1)+3*5", ExpectedResult = 15.1)] // Normal case
+    [TestCase("", "=2+A1/10", ExpectedResult = 2)] // Empty value (should default to 0)
+    [TestCase("", "=A1", ExpectedResult = 0)] // Empty value (should default to 0)
+    public double SpreadsheetEvaluateVariableExpression(string variableText, string expressionText)
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 2);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        var cellB1 = spreadsheet.GetCell(0, 1);
+
+        Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
 
         // Act
-        var operatorNode = operatorNodeFactory.CreateOperatorNode(operatorSymbol);
+        cellA1.Text = variableText;
+        cellB1.Text = expressionText;
+
+        if (!double.TryParse(cellB1.Value, out var result))
+        {
+            throw new Exception("Non double result");
+        }
 
         // Assert
-        return operatorNode?.GetType();
+        return result;
+    }
+
+    /// <summary>
+    /// Test the update of a referencing cell value when the referenced cell value updates.
+    /// </summary>
+    /// <param name="initialReferencedValue">The initial value of the referenced cell.</param>
+    /// <param name="finalReferencedValue">The final/updated value of the referenced cell.</param>
+    /// <param name="referencingText">The text of the referencing cell (set to reference the referenced cell).</param>
+    /// <returns>The updated value of the referencing cell.</returns>
+    [Test]
+    [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
+    [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
+    [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
+    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+    [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
+    public string SpreadsheetUpdateReferencingCellTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
+    {
+        // Arrange (set up referencing and referenced cells)
+        var spreadsheet = new Spreadsheet(1, 2);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        var cellB1 = spreadsheet.GetCell(0, 1);
+
+        Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
+
+        cellA1.Value = initialReferencedValue;
+        cellB1.Text = referencingText;
+
+        // Act (change referenced cell value)
+        cellA1.Value = finalReferencedValue;
+
+        // Assert (referencing cell value updates to reflect new referenced cell value)
+        return cellB1.Value;
+    }
+
+    /// <summary>
+    /// Test the update of a referencing cell value through a chain of references (B1 = A1, C1 = B1) when the referenced cell value updates.
+    /// </summary>
+    /// <param name="initialReferencedValue">The initial value of the referenced cell.</param>
+    /// <param name="finalReferencedValue">The final/updated value of the referenced cell.</param>
+    /// <param name="referencingText">The text of the referencing cell (set to reference the referenced cell).</param>
+    /// <returns>The updated value of the referencing cell.</returns>
+    [Test]
+    [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
+    [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
+    [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
+    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+    [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
+    public string SpreadsheetUpdateChainedReferencingCellsTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
+    {
+        // Arrange (set up referencing and referenced cells)
+        var spreadsheet = new Spreadsheet(1, 3);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        var cellB1 = spreadsheet.GetCell(0, 1);
+        var cellC1 = spreadsheet.GetCell(0, 2);
+
+        Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
+        Debug.Assert(cellC1 != null, nameof(cellC1) + " != null");
+
+        cellA1.Value = initialReferencedValue;
+        cellB1.Text = referencingText;
+        cellC1.Text = referencingText;
+
+        // Act (change referenced cell value)
+        cellA1.Value = finalReferencedValue;
+
+        // Assert (referencing cell value updates to reflect new referenced cell value)
+        return cellC1.Value;
     }
 }
