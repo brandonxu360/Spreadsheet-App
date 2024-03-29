@@ -251,7 +251,10 @@ internal class SpreadsheetTests
     /// </summary>
     /// <exception cref="Exception">The result was not able to be converted to a double, indicating the wrong result.</exception>
     [Test]
-    public void SpreadsheetEvaluateVariableExpression()
+    [TestCase("20", "=(2/A1)+3*5", ExpectedResult = 15.1)] // Normal case
+    [TestCase("", "=2+A1/10", ExpectedResult = 2)] // Empty value (should default to 0)
+    [TestCase("", "=A1", ExpectedResult = 0)] // Empty value (should default to 0)
+    public double SpreadsheetEvaluateVariableExpression(string variableText, string expressionText)
     {
         // Arrange
         var spreadsheet = new Spreadsheet(1, 2);
@@ -262,8 +265,8 @@ internal class SpreadsheetTests
         Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
 
         // Act
-        cellA1.Text = "20";
-        cellB1.Text = "=(2/A1)+3*5";
+        cellA1.Text = variableText;
+        cellB1.Text = expressionText;
 
         if (!double.TryParse(cellB1.Value, out var result))
         {
@@ -271,7 +274,7 @@ internal class SpreadsheetTests
         }
 
         // Assert
-        Assert.That(result, Is.EqualTo(15.1));
+        return result;
     }
 
     /// <summary>
@@ -285,7 +288,7 @@ internal class SpreadsheetTests
     [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
     [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
     [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
-    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
     [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
     public string SpreadsheetUpdateReferencingCellTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
     {
@@ -318,7 +321,7 @@ internal class SpreadsheetTests
     [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
     [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
     [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
-    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "#Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
     [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
     public string SpreadsheetUpdateChainedReferencingCellsTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
     {
