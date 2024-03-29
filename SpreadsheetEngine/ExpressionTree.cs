@@ -46,7 +46,7 @@ public class ExpressionTree
     public ExpressionTree(string expression)
     {
         // Initialize the infix expression to a default expression
-        this.InfixStringExpression = "A1+B1+C1"; // This property will immediately be updated through SetExpressTree
+        this.InfixStringExpression = "A1+B1+C1"; // This property will immediately be updated through SetExpressionTree
 
         // Initialize an instance of the OperatorNodeFactory
         this.operatorNodeFactory = new OperatorNodeFactory();

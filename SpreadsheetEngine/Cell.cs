@@ -50,18 +50,6 @@ public abstract class Cell : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
-    /// Gets the row index of the cell in the grid.
-    /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public int RowIndex { get; }
-
-    /// <summary>
-    /// Gets the column index of the cell in the grid.
-    /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public int ColumnIndex { get; }
-
-    /// <summary>
     /// Gets the set of cells that this cell is currently referencing/subscribed to.
     /// </summary>
     public HashSet<string> ReferencedCellNames { get; }
@@ -86,6 +74,7 @@ public abstract class Cell : INotifyPropertyChanged
     {
         get => this.value;
 
+        // TODO: Do not expose value setter
         set
         {
             // Must be implemented in children class
@@ -93,6 +82,17 @@ public abstract class Cell : INotifyPropertyChanged
             this.OnPropertyChanged();
         }
     }
+
+    /// <summary>
+    /// Gets the row index of the cell in the grid.
+    /// </summary>
+    private int RowIndex { get; }
+
+    /// <summary>
+    /// Gets the column index of the cell in the grid.
+    /// </summary>
+    private int ColumnIndex { get; }
+
 
     /// <summary>
     /// Returns the string name of the cell based on its row and column indices.
@@ -111,7 +111,7 @@ public abstract class Cell : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Method to reevaluate the cell value when the referenced cell value is changed.
+    /// Method to trigger reevaluation of the cell value when the referenced cell value is changed.
     /// </summary>
     /// <param name="sender">The sender object.</param>
     /// <param name="e">PropertyChangedEventArgs arguments.</param>

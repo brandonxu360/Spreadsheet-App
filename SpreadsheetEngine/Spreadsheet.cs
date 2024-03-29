@@ -53,12 +53,12 @@ public class Spreadsheet
     /// <summary>
     /// Gets the number of columns in the spreadsheet.
     /// </summary>
-    public int ColumnCount { get; }
+    private int ColumnCount { get; }
 
     /// <summary>
     /// Gets the number of rows in the spreadsheet.
     /// </summary>
-    public int RowCount { get; }
+    private int RowCount { get; }
 
     /// <summary>
     /// Returns the cell of at the specified column and row index.
@@ -116,6 +116,14 @@ public class Spreadsheet
         }
     }
 
+    /// <summary>
+    /// Attempts to build and evaluate the value of the expression (indicated with an = sign), and handles subscribing and unsubscribing referencing cells from referenced
+    /// cell events.
+    /// </summary>
+    /// <param name="expression">The string expression input taken directly from the cell text (includes the =).</param>
+    /// <param name="sender">The cell that had its property changed.</param>
+    /// <returns>The string representation for the evaluation of the expression.</returns>
+    /// <exception cref="Exception">Any errors encountered during the building/evaluating of the expression will return "#Invalid expression" code.</exception>
     private string EvaluateExpression(string expression, Cell sender)
     {
         // Extract the cell expression from the text (e.g., "=A5" -> "A5")
@@ -174,15 +182,11 @@ public class Spreadsheet
             // Finally, call evaluate on the ExpressionTree and return the value as a string
             return expressionTree.Evaluate().ToString(CultureInfo.InvariantCulture);
         }
-        catch (Exception e)
-        {
-            // Handle Invalid expression value
-            if (e.Message == "#Invalid expression")
-            {
-                return e.Message;
-            }
 
-            return "Unknown error encountered";
+        // Return error for invalid expression whenever expression fails to build/evaluate
+        catch (Exception)
+        {
+            return "#Invalid expression";
         }
     }
 
@@ -193,13 +197,19 @@ public class Spreadsheet
     /// <param name="reference">The referenced cell (notifier).</param>
     private void SubscribeToReferencedCells(Cell sender, string reference)
     {
-        if (!sender.ReferencedCellNames.Contains(reference))
+        // If the referenced cell is already subscribed to (as indicated in the cell's ReferencedCellNames property), do not subscribe again
+        if (sender.ReferencedCellNames.Contains(reference))
         {
-            this.GetCell(reference).PropertyChanged += sender.OnReferencedCellPropertyChanged;
-            sender.ReferencedCellNames.Add(reference);
+            return;
         }
+
+        this.GetCell(reference).PropertyChanged += sender.OnReferencedCellPropertyChanged;
+        sender.ReferencedCellNames.Add(reference);
     }
 
+    /// <summary>
+    /// Embedded SpreadsheetCell to expose the setter privileges only to the Spreadsheet class.
+    /// </summary>
     private class SpreadsheetCell : Cell
     {
         /// <summary>
@@ -212,6 +222,10 @@ public class Spreadsheet
         {
         }
 
+        /// <summary>
+        /// Overridden setter for the value of a cell.
+        /// </summary>
+        /// <param name="newValue">The new string to set the value to.</param>
         protected override void SetValue(string newValue)
         {
             this.value = newValue;
