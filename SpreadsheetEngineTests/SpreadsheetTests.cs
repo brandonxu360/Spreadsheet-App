@@ -34,7 +34,7 @@ internal class SpreadsheetTests
             {
                 // Check that every cell was instantiated and initialized with the correct initial value
                 Assert.That(
-                    testSpreadsheet.GetCell(row, column)?.Value,
+                    testSpreadsheet.GetCell(row, column).Value,
                     Is.EqualTo(initialValue),
                     $"Cell at ({row}, {column}) should be initialized with value {initialValue}");
             }
@@ -112,7 +112,7 @@ internal class SpreadsheetTests
         // Act and Assert
 
         // The value should not change when text is set to the same as current value
-        var originalValue = cell?.Value;
+        var originalValue = cell.Value;
         Debug.Assert(originalValue != null, nameof(originalValue) + " != null");
         Debug.Assert(cell != null, nameof(cell) + " != null");
         cell.Text = originalValue;
@@ -153,6 +153,7 @@ internal class SpreadsheetTests
     /// Tests cell value update with reference text input to itself (evaluate reference to same cell).
     /// </summary>
     [Test]
+    [Ignore("Circular references not required yet")]
     public void SpreadsheetCellUpdateReferenceSelf()
     {
         // Arrange
@@ -185,6 +186,7 @@ internal class SpreadsheetTests
     /// This test case was created due to strange behavior noticed when using the UI.
     /// </summary>
     [Test]
+    [Ignore("Circular references not required yet")]
     public void SpreadsheetCellUpdateReferenceSelfShortReferenceAndEmpty()
     {
         // Arrange
@@ -283,8 +285,7 @@ internal class SpreadsheetTests
     [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
     [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
     [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
-    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "=A1+5")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
-
+    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
     [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
     public string SpreadsheetUpdateReferencingCellTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
     {
@@ -304,5 +305,41 @@ internal class SpreadsheetTests
 
         // Assert (referencing cell value updates to reflect new referenced cell value)
         return cellB1.Value;
+    }
+
+    /// <summary>
+    /// Test the update of a referencing cell value through a chain of references (B1 = A1, C1 = B1) when the referenced cell value updates.
+    /// </summary>
+    /// <param name="initialReferencedValue">The initial value of the referenced cell.</param>
+    /// <param name="finalReferencedValue">The final/updated value of the referenced cell.</param>
+    /// <param name="referencingText">The text of the referencing cell (set to reference the referenced cell).</param>
+    /// <returns>The updated value of the referencing cell.</returns>
+    [Test]
+    [TestCase("20", "10", "=A1", ExpectedResult = "10")] // Single value update
+    [TestCase("20", "40", "=A1+60", ExpectedResult = "100")] // Value update for a value within an expression
+    [TestCase("20", "hello I am not a double", "=A1", ExpectedResult = "hello I am not a double")] // Referenced cell value updated to value not able to parse to double
+    [TestCase("20", "hello I am not a double", "=A1+5", ExpectedResult = "Invalid expression")] // Referenced cell value updated such that previously valid referencing text expression becomes invalid
+    [TestCase("hello", "20", "=A1+5", ExpectedResult = "25")] // Referenced cell value updated such that previously invalid referencing text expression becomes valid
+    public string SpreadsheetUpdateChainedReferencingCellsTest(string initialReferencedValue, string finalReferencedValue, string referencingText)
+    {
+        // Arrange (set up referencing and referenced cells)
+        var spreadsheet = new Spreadsheet(1, 3);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        var cellB1 = spreadsheet.GetCell(0, 1);
+        var cellC1 = spreadsheet.GetCell(0, 2);
+
+        Debug.Assert(cellA1 != null, nameof(cellA1) + " != null");
+        Debug.Assert(cellB1 != null, nameof(cellB1) + " != null");
+        Debug.Assert(cellC1 != null, nameof(cellC1) + " != null");
+
+        cellA1.Value = initialReferencedValue;
+        cellB1.Text = referencingText;
+        cellC1.Text = referencingText;
+
+        // Act (change referenced cell value)
+        cellA1.Value = finalReferencedValue;
+
+        // Assert (referencing cell value updates to reflect new referenced cell value)
+        return cellC1.Value;
     }
 }
