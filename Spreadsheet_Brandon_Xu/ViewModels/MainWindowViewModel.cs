@@ -7,6 +7,7 @@ namespace Spreadsheet_Brandon_Xu.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Media;
 using SpreadsheetEngine;
 
 /// <summary>
@@ -35,6 +36,18 @@ public class MainWindowViewModel : ViewModelBase
     /// Gets or sets the spreadsheet data that is exposed and used by the UI. This is a list of RowViewModels, and each row consists of CellViewModels.
     /// </summary>
     public List<RowViewModel>? SpreadsheetData { get; set; }
+
+    /// <summary>
+    /// Changes the color of the selected cells to the Color passed in as input.
+    /// </summary>
+    /// <param name="color">The color to change the selected cell colors to.</param>
+    public void ChangeSelectedCellColor(Color color)
+    {
+        foreach (var cell in this.selectedCells)
+        {
+            cell.BackgroundColor = color.ToUInt32();
+        }
+    }
 
     /// <summary>
     /// Resets the current cell selection and selects the cell indicated by the rowIndex and columnIndex parameters.

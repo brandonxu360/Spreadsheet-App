@@ -75,7 +75,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             this.SpreadsheetDataGrid.Columns.Add(column);
         }
 
-        // Add function to DataGrid cell editing event when a cell enters editing mode
+        // Add function to DataGrid cell editing event when a cell is about to enter editing mode
         this.SpreadsheetDataGrid.PreparingCellForEdit += (_, args) =>
         {
             // Catch exceptional case where the EditingElement is not a TextBox
@@ -120,13 +120,26 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             var rowIndex = args.Row.GetIndex();
             var columnIndex = args.Column.DisplayIndex;
 
-            // Check if multiple cells were selected
+            // Check if multiple cells are being selected
             var multipleSelection =
                 args.PointerPressedEventArgs.KeyModifiers != KeyModifiers.None;
+
+            // Begin a new cell selection (unselect all previously selected cells and select the cell pressed)
             if (multipleSelection == false)
             {
+                // Select the cell
                 (this.DataContext as MainWindowViewModel)?.SelectCell(rowIndex, columnIndex);
+
+                // Set the ColorPicker color to the current color of the newly selected cell when making new cell selections
+                var dataContext = this.DataContext;
+                if (dataContext != null)
+                {
+                    this.SpreadsheetColorPicker.Color = Color.FromUInt32(((MainWindowViewModel)dataContext)
+                        .GetCell(rowIndex, columnIndex).BackgroundColor);
+                }
             }
+
+            // Change cell selection of cell pressed without impacting other selected cells
             else
             {
                 (this.DataContext as MainWindowViewModel)?.ToggleCellSelection(rowIndex, columnIndex);
@@ -160,5 +173,25 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     private void DataGrid_LoadingRow(object? sender, DataGridRowEventArgs dataGridRowEventArgs)
     {
         dataGridRowEventArgs.Row.Header = dataGridRowEventArgs.Row.GetIndex() + 1;
+    }
+
+    /// <summary>
+    /// Method to be executed when the ColorPicker ColorChanged event is invoked.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="colorChangedEventArgs">The color changed event arguments.</param>
+    // ReSharper disable once UnusedParameter.Local (ColorChangedEvent requires ColorChangedEventArgs as parameter)
+    private void ColorView_OnColorChanged(object? sender, ColorChangedEventArgs colorChangedEventArgs)
+    {
+        if (this.DataContext is not MainWindowViewModel mainWindowViewModel)
+        {
+            return;
+        }
+
+        if (sender is ColorPicker colorPicker)
+        {
+            // Change the color of the selected cells to the ColorPicker's new color
+            mainWindowViewModel.ChangeSelectedCellColor(colorPicker.Color);
+        }
     }
 }
