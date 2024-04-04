@@ -42,6 +42,9 @@ public abstract class Cell : INotifyPropertyChanged
         this.ReferencedCellNames = new HashSet<string>();
         this.text = string.Empty;
         this.value = string.Empty;
+
+        // Default background color set to white
+        this.BackgroundColor = 0xFFFFFFFF;
     }
 
     /// <summary>
@@ -82,6 +85,11 @@ public abstract class Cell : INotifyPropertyChanged
             this.OnPropertyChanged();
         }
     }
+
+    /// <summary>
+    /// Gets or sets the background color represented with a uint.
+    /// </summary>
+    public uint BackgroundColor { get; set; }
 
     /// <summary>
     /// Gets the row index of the cell in the grid.
