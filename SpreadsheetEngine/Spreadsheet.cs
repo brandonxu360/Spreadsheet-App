@@ -140,7 +140,7 @@ public class Spreadsheet
         try
         {
             // Build the expression tree using ExpressionTree
-            var expressionTree = new ExpressionTree(strippedExpression);
+            var expressionTree = new ExpressionTree.ExpressionTree(strippedExpression);
 
             // Get a list of all the references/variables found when building the ExpressionTree (ExpressionTree's variable dictionary)
             var references = expressionTree.GetVariableNames();

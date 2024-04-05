@@ -5,7 +5,7 @@
 // Conflicts with assignment access specifications
 #pragma warning disable SA1401
 
-namespace SpreadsheetEngine;
+namespace SpreadsheetEngine.ExpressionTree;
 
 /// <summary>
 /// Abstract class for all binary operator nodes.

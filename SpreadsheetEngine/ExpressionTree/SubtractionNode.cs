@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace SpreadsheetEngine;
+namespace SpreadsheetEngine.ExpressionTree;
 
 using System.Diagnostics;
 

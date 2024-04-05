@@ -4,7 +4,7 @@
 
 namespace ExpressionTreeDemo
 {
-    using SpreadsheetEngine;
+    using SpreadsheetEngine.ExpressionTree;
 
     /// <summary>
     /// Main program of ExpressionTreeDemo.

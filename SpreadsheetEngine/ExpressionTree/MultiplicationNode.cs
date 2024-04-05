@@ -1,20 +1,20 @@
-// <copyright file="DivisionNode.cs" company="PlaceholderCompany">
+// <copyright file="MultiplicationNode.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace SpreadsheetEngine;
+namespace SpreadsheetEngine.ExpressionTree;
 
 using System.Diagnostics;
 
 /// <summary>
-/// Node class to represent and apply the division operator.
+/// Node class to represent and apply the multiplication operator.
 /// </summary>
-public class DivisionNode : OperatorNode
+public class MultiplicationNode : OperatorNode
 {
     /// <summary>
-    /// Character symbol to identify/represent division.
+    /// Character symbol to identify/represent multiplication.
     /// </summary>
-    public static readonly string OperatorSymbol = "/";
+    public static readonly string OperatorSymbol = "*";
 
     /// <summary>
     /// The operator precedence level (according to java rules).
@@ -22,9 +22,9 @@ public class DivisionNode : OperatorNode
     public static readonly int Precedence = 12;
 
     /// <summary>
-    /// Returns the result of the left child node value divided by the right child node value.
+    /// Returns the result of the left child node value multiplied by the right child node value.
     /// </summary>
-    /// <returns>The double result of the left child node value divided by the left child node value.</returns>
+    /// <returns>The double result of the left child node value multiplied by the left child node value.</returns>
     /// <exception cref="NotImplementedException">Method is not implemented yet.</exception>
     public override double Evaluate()
     {
@@ -34,6 +34,6 @@ public class DivisionNode : OperatorNode
         var leftValue = this.LeftChild.Evaluate();
         var rightValue = this.RightChild.Evaluate();
 
-        return leftValue / rightValue;
+        return leftValue * rightValue;
     }
 }
