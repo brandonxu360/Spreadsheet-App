@@ -145,12 +145,12 @@ public class Spreadsheet
             // Get a list of all the references/variables found when building the ExpressionTree (ExpressionTree's variable dictionary)
             var references = expressionTree.GetVariableNames();
 
-            // If simple single reference to cell, subscribe to cell and return the value of the referenced cell (or zero if string is empty)
+            // If simple single reference to cell, subscribe to cell and return the value of the referenced cell (or throw ref exception if string is empty)
             if (references.Count > 0 && strippedExpression == references.First())
             {
                 this.SubscribeToReferencedCells(sender, references.First());
                 var referencedValue = this.GetCell(references.First()).Value;
-                return referencedValue != string.Empty ? referencedValue : "0";
+                return referencedValue != string.Empty ? referencedValue : "#InvalidRef";
             }
 
             // Otherwise, iterate through each reference to subscribe to the cell, set the variable value, and return the final evaluated value
@@ -167,15 +167,9 @@ public class Spreadsheet
                 {
                     expressionTree.SetVariable(reference, doubleValue);
                 }
-
-                // If the cell value is empty, set variable to default value (0)
-                else if (stringValue == string.Empty)
-                {
-                    expressionTree.SetVariable(reference, 0);
-                }
                 else
                 {
-                    throw new Exception("#Invalid expression");
+                    throw new Exception("#InvalidRef");
                 }
             }
 
@@ -183,10 +177,10 @@ public class Spreadsheet
             return expressionTree.Evaluate().ToString(CultureInfo.InvariantCulture);
         }
 
-        // Return error for invalid expression whenever expression fails to build/evaluate
+        // Return error for invalid references whenever expression fails to build/evaluate
         catch (Exception)
         {
-            return "#Invalid expression";
+            return "#InvalidRef";
         }
     }
 
