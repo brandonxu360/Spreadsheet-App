@@ -30,6 +30,11 @@ public abstract class Cell : INotifyPropertyChanged
     private string text;
 
     /// <summary>
+    /// The encapsulated background color of the cell.
+    /// </summary>
+    private uint backgroundColor;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Cell"/> class.
     /// </summary>
     /// <param name="rowIndex">The row index of the cell.</param>
@@ -89,7 +94,15 @@ public abstract class Cell : INotifyPropertyChanged
     /// <summary>
     /// Gets or sets the background color represented with a uint.
     /// </summary>
-    public uint BackgroundColor { get; set; }
+    public uint BackgroundColor
+    {
+        get => this.backgroundColor;
+        set
+        {
+            this.backgroundColor = value;
+            this.OnPropertyChanged();
+        }
+    }
 
     /// <summary>
     /// Gets the row index of the cell in the grid.

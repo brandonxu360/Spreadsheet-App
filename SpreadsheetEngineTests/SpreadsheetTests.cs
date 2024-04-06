@@ -342,4 +342,23 @@ internal class SpreadsheetTests
         // Assert (referencing cell value updates to reflect new referenced cell value)
         return cellC1.Value;
     }
+
+    /// <summary>
+    /// Test the redo functionality for cell text editing.
+    /// </summary>
+    [Test]
+    public void UndoTextChangeTest()
+    {
+        // Arrange (we will mock text input by manually using the text editing commands)
+        var spreadsheet = new Spreadsheet(1, 1);
+        var cellA1 = spreadsheet.GetCell(0, 0);
+        spreadsheet.EditCellText(0, 0, "hello");
+        spreadsheet.EditCellText(0, 0, "bye bye");
+
+        // Act
+        spreadsheet.Undo();
+
+        // Assert
+        Assert.That(cellA1.Value, Is.EqualTo("hello"));
+    }
 }

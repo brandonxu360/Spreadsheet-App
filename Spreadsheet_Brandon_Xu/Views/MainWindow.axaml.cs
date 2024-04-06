@@ -66,11 +66,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
                         VerticalAlignment = VerticalAlignment.Center,
                         Padding = Thickness.Parse("5,0,5,0"),
                     }),
-                CellEditingTemplate = new FuncDataTemplate<RowViewModel>((_, _) =>
-                    new TextBox
-                    {
-                        [!TextBox.TextProperty] = new Binding($"[{columnIndex}].Text"),
-                    }),
+                CellEditingTemplate = new FuncDataTemplate<RowViewModel>((_, _) => new TextBox()),
             };
             this.SpreadsheetDataGrid.Columns.Add(column);
         }
@@ -109,7 +105,17 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             // Set the text of the cell to the text of the EditingElement TextBox text
             if (this.DataContext is MainWindowViewModel model)
             {
-                model.GetCell(rowIndex, columnIndex).Text = textInput.Text;
+                // Get the text of the DataGrid Cell
+                var newText = textInput.Text;
+
+                // Do not set the text of the CellViewModel if the text was not changed
+                if (newText == model.GetCell(rowIndex, columnIndex).Text)
+                {
+                    return;
+                }
+
+                // Call the MainWindowViewModel to edit the Cell object's text using a command
+                model.EditCellText(rowIndex, columnIndex, newText ?? throw new InvalidOperationException());
             }
         };
 
@@ -188,10 +194,12 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             return;
         }
 
-        if (sender is ColorPicker colorPicker)
+        // If the color picker color changed and any of the selected cells are a different color, change their colors to the new color picker color
+        if (sender is ColorPicker colorPicker &&
+            mainWindowViewModel.SelectedCellsContainDiffColor(colorPicker.Color.ToUInt32()))
         {
-            // Change the color of the selected cells to the ColorPicker's new color
-            mainWindowViewModel.ChangeSelectedCellColor(colorPicker.Color);
+            // Call the MainViewModel to change the color of the selected cells to the ColorPicker's new color using a command
+            mainWindowViewModel.ChangeSelectedCellColor(colorPicker.Color.ToUInt32());
         }
     }
 }

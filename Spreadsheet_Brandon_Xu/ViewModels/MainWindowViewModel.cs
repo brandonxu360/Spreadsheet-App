@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using ReactiveUI;
 using SpreadsheetEngine;
 
 /// <summary>
@@ -15,8 +16,23 @@ using SpreadsheetEngine;
 /// </summary>
 public class MainWindowViewModel : ViewModelBase
 {
+    /// <summary>
+    /// A collection of the currently selected cells.
+    /// </summary>
     // ReSharper disable once InconsistentNaming
     private readonly List<CellViewModel> selectedCells = [];
+
+    /// <summary>
+    /// Field for the undo menu item header.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private string undoMenuItemHeader;
+
+    /// <summary>
+    /// Field for the redo menu item header.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private string redoMenuItemHeader;
 
     /// <summary>
     /// The instance of the spreadsheet being operated on.
@@ -25,17 +41,117 @@ public class MainWindowViewModel : ViewModelBase
     private Spreadsheet? spreadsheet;
 
     /// <summary>
+    /// Value indicating an undo command is available (used for enabling/disabling the undo menu item).
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private bool undoAvailable;
+
+    /// <summary>
+    /// Value indicating a redo command is available (used for enabling/disabling the redo menu item).
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private bool redoAvailable;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
     /// </summary>
     public MainWindowViewModel()
     {
+        this.undoAvailable = false;
+        this.redoAvailable = false;
+
+        // Set menu headers to default
+        this.undoMenuItemHeader = "Undo";
+        this.redoMenuItemHeader = "Redo";
+
         this.InitializeSpreadsheet();
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether an undo command is available (used for enabling/disabling the undo menu item).
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    public bool UndoAvailable
+    {
+        get => this.undoAvailable;
+        set => this.RaiseAndSetIfChanged(ref this.undoAvailable, value);
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether a redo command is available (used for enabling/disabling the redo menu item).
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    public bool RedoAvailable
+    {
+        get => this.redoAvailable;
+        set => this.RaiseAndSetIfChanged(ref this.redoAvailable, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the menu item header of the undo menu option.
+    /// </summary>
+    public string UndoMenuItemHeader
+    {
+        get => this.undoMenuItemHeader;
+        set => this.RaiseAndSetIfChanged(ref this.undoMenuItemHeader, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the menu item header of the redo menu option.
+    /// </summary>
+    public string RedoMenuItemHeader
+    {
+        get => this.redoMenuItemHeader;
+        set => this.RaiseAndSetIfChanged(ref this.redoMenuItemHeader, value);
     }
 
     /// <summary>
     /// Gets or sets the spreadsheet data that is exposed and used by the UI. This is a list of RowViewModels, and each row consists of CellViewModels.
     /// </summary>
     public List<RowViewModel>? SpreadsheetData { get; set; }
+
+    /// <summary>
+    /// Expose EditCellText functionality from the Spreadsheet to the UI.
+    /// </summary>
+    /// <param name="rowIndex">The row index corresponding to the cell that was edited.</param>
+    /// <param name="columnIndex">The column index corresponding to the cell that was edited.</param>
+    /// <param name="newText">The new text to set the cell text to.</param>
+    public void EditCellText(int rowIndex, int columnIndex, string newText)
+    {
+        this.spreadsheet?.EditCellText(rowIndex, columnIndex, newText);
+        this.UpdateUndoRedoHeaders();
+    }
+
+    /// <summary>
+    /// Expose ChangeCellColor functionality from the Spreadsheet to the UI.
+    /// </summary>
+    /// <param name="newColor">The new uint color to set the cell background color to.</param>
+    public void ChangeSelectedCellColor(uint newColor)
+    {
+        // Map the selected cell CellViewModels to a list of Cell objects to pass to the spreadsheet
+        List<Cell> cells = this.selectedCells.Select(cellViewModel => cellViewModel.Cell).ToList();
+
+        this.spreadsheet?.ChangeCellColor(cells, newColor);
+        this.UpdateUndoRedoHeaders();
+    }
+
+    /// <summary>
+    /// Expose undo functionality from the Spreadsheet to the UI.
+    /// </summary>
+    public void UndoCommand()
+    {
+        this.spreadsheet?.Undo();
+        this.UpdateUndoRedoHeaders();
+    }
+
+    /// <summary>
+    /// Expose redo functionality from the Spreadsheet to the UI.
+    /// </summary>
+    public void RedoCommand()
+    {
+        this.spreadsheet?.Redo();
+        this.UpdateUndoRedoHeaders();
+    }
 
     /// <summary>
     /// Changes the color of the selected cells to the Color passed in as input.
@@ -155,6 +271,25 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Helper function to determine if any of the selected cells have a different background color from the passed-in color.
+    /// Used to determine whether to change the color of the selected cells when the color picker color changes.
+    /// </summary>
+    /// <param name="color">The uint color to compare the selected cell colors against.</param>
+    /// <returns>True if the selected cells have at least one different background color, false otherwise.</returns>
+    public bool SelectedCellsContainDiffColor(uint color)
+    {
+        foreach (var cell in this.selectedCells)
+        {
+            if (cell.BackgroundColor != color)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Retrieves the CellViewModel at the specified row and column indices.
     /// </summary>
     /// <param name="rowIndex">The index of the row where the cell is located.</param>
@@ -201,6 +336,68 @@ public class MainWindowViewModel : ViewModelBase
             }
 
             this.SpreadsheetData.Add(new RowViewModel(columns));
+        }
+    }
+
+    /// <summary>
+    /// Update the undo/redo headers.
+    /// Set the header to describe a specific undo or redo action if the corresponding command exists.
+    /// Enable the header if the command exists, disable otherwise.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The referenced spreadsheet is null.</exception>
+    private void UpdateUndoRedoHeaders()
+    {
+        // Catch exceptional case where referenced spreadsheet is null
+        if (this.spreadsheet == null)
+        {
+            throw new InvalidOperationException();
+        }
+
+        var undoCommand = this.spreadsheet.TryGetUndoCommand();
+        var redoCommand = this.spreadsheet.TryGetRedoCommand();
+
+        // * UPDATE UNDO MENU OPTION
+
+        // If undo command does not exist
+        if (undoCommand == null)
+        {
+            // Default undo header text
+            this.UndoMenuItemHeader = "Undo";
+
+            // Disable undo option
+            this.UndoAvailable = false;
+        }
+
+        // If undo command exists
+        else
+        {
+            // Use the command title
+            this.UndoMenuItemHeader = "Undo " + undoCommand.GetCommandTitle();
+
+            // Enable undo option
+            this.UndoAvailable = true;
+        }
+
+        // * UPDATE REDO MENU OPTION
+
+        // If redo command does not exist
+        if (redoCommand == null)
+        {
+            // Default redo menu header
+            this.RedoMenuItemHeader = "Redo";
+
+            // Disable undo option
+            this.RedoAvailable = false;
+        }
+
+        // If undo command exists, set header to title
+        else
+        {
+            // Use the command title
+            this.RedoMenuItemHeader = "Redo " + redoCommand.GetCommandTitle();
+
+            // Enable undo option
+            this.RedoAvailable = true;
         }
     }
 }

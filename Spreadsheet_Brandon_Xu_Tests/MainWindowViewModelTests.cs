@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using Avalonia.Media;
+
 namespace Spreadsheet_Brandon_Xu_Tests;
 
 using System.Diagnostics;
@@ -9,7 +11,7 @@ using Spreadsheet_Brandon_Xu.ViewModels;
 
 /// <summary>
 /// Unit tests for the MainWindowViewModel.
-/// </summary>g
+/// </summary>
 public class MainWindowViewModelTests
 {
     /// <summary>
@@ -88,5 +90,216 @@ public class MainWindowViewModelTests
         {
             Assert.That(cell.IsSelected, Is.False);
         }
+    }
+
+    /// <summary>
+    /// Tests that the exposed EditCellText method, which uses commands to edit the cell text, functions as expected.
+    /// </summary>
+    [Test]
+    public void EditCellTextWithCommand()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+        var cellA1 = viewModel.GetCell(0, 0);
+        const string newText = "boohoo new text";
+
+        // Act
+        viewModel.EditCellText(0, 0, newText);
+
+        // Assert
+        Assert.That(cellA1.Text, Is.EqualTo(newText));
+    }
+
+    /// <summary>
+    /// Tests that the exposed EditCellText method, which uses commands to edit the cell text, functions as expected.
+    /// </summary>
+    [Test]
+    public void ChangeCellBackgroundColorWithCommand()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+        var cellA1 = viewModel.GetCell(0, 0);
+        viewModel.SelectCell(0, 0);
+        var newColor = Colors.Aqua.ToUInt32();
+
+        // Act
+        viewModel.ChangeSelectedCellColor(newColor);
+
+        // Assert
+        Assert.That(cellA1.BackgroundColor, Is.EqualTo(newColor));
+    }
+
+    /// <summary>
+    /// Tests the exposed Undo function, which uses commands to apply an undo, on a text edit.
+    /// </summary>
+    [Test]
+    public void UndoTextEditTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+        var cellA1 = viewModel.GetCell(0, 0);
+        var initialText = cellA1.Text;
+        var secondaryText = "blah blah";
+        viewModel.EditCellText(0, 0, secondaryText);
+
+        // Act
+        viewModel.UndoCommand();
+
+        // Assert
+        Assert.That(cellA1.Text, Is.EqualTo(initialText));
+    }
+
+    /// <summary>
+    /// Tests the exposed Undo function, which uses commands to apply an undo, on a background color change.
+    /// </summary>
+    [Test]
+    public void UndoBackgroundColorChangeTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+        var cellA1 = viewModel.GetCell(0, 0);
+        var initialBackgroundColor = cellA1.BackgroundColor;
+        var secondaryBackgroundColor = Colors.Aqua.ToUInt32();
+        viewModel.SelectCell(0, 0);
+        viewModel.ChangeSelectedCellColor(secondaryBackgroundColor);
+
+        // Act
+        viewModel.UndoCommand();
+
+        // Assert
+        Assert.That(cellA1.BackgroundColor, Is.EqualTo(initialBackgroundColor));
+    }
+
+    /// <summary>
+    /// Tests the exposed Redo function, which uses commands to apply an redo, on a text edit.
+    /// </summary>
+    [Test]
+    public void RedoTextEditTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+        var cellA1 = viewModel.GetCell(0, 0);
+        var secondaryText = "blah blah";
+        viewModel.EditCellText(0, 0, secondaryText);
+        viewModel.UndoCommand();
+
+        // Act
+        viewModel.RedoCommand();
+
+        // Assert
+        Assert.That(cellA1.Text, Is.EqualTo(secondaryText));
+    }
+
+    /// <summary>
+    /// Tests the exposed Redo function, which uses commands to apply an redo, on a background color change.
+    /// </summary>
+    [Test]
+    public void RedoBackgroundColorChangeTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+        var cellA1 = viewModel.GetCell(0, 0);
+        var secondaryBackgroundColor = Colors.Aqua.ToUInt32();
+        viewModel.SelectCell(0, 0);
+        viewModel.ChangeSelectedCellColor(secondaryBackgroundColor);
+        viewModel.UndoCommand();
+
+        // Act
+        viewModel.RedoCommand();
+
+        // Assert
+        Assert.That(cellA1.BackgroundColor, Is.EqualTo(secondaryBackgroundColor));
+    }
+
+    /// <summary>
+    /// Tests the exposed Undo function, which uses commands to apply an undo, on a text edit in the EXCEPTIONAL CASE where no undo commands exist.
+    /// </summary>
+    [Test]
+    public void UndoTextEditWhenNoUndoExceptionalTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+
+        // Act and Assert
+        Assert.Multiple(() =>
+            {
+                // The viewmodel should know that the undo stack is empty, and thus the option to undo will not be available
+                Assert.That(viewModel.UndoAvailable, Is.False);
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    // The undo stack is empty so the stack pop will result in InvalidOperationException
+                    viewModel.UndoCommand();
+                });
+            }
+        );
+    }
+
+    /// <summary>
+    /// Tests the exposed Undo function, which uses commands to apply an undo, on a background color change in the EXCEPTIONAL CASE where no undo commands exist.
+    /// </summary>
+    [Test]
+    public void UndoBackgroundColorChangeWhenNoUndoExceptionalTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+
+        // Act and Assert
+        Assert.Multiple(() =>
+            {
+                // The viewmodel should know that the undo stack is empty, and thus the option to undo will not be available
+                Assert.That(viewModel.UndoAvailable, Is.False);
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    // The undo stack is empty so the stack pop will result in InvalidOperationException
+                    viewModel.UndoCommand();
+                });
+            }
+        );
+    }
+
+    /// <summary>
+    /// Tests the exposed Redo function, which uses commands to apply an redo, on a text edit in the EXCEPTIONAL CASE where no redo commands exist.
+    /// </summary>
+    [Test]
+    public void RedoTextEditWhenNoRedoExceptionalTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+
+        // Act and Assert
+        Assert.Multiple(() =>
+            {
+                // The viewmodel should know that the redo stack is empty, and thus the option to redo will not be available
+                Assert.That(viewModel.RedoAvailable, Is.False);
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    // The redo stack is empty so the stack pop will result in InvalidOperationException
+                    viewModel.RedoCommand();
+                });
+            }
+        );
+    }
+
+    /// <summary>
+    /// Tests the exposed Undo function, which uses commands to apply an undo, on a background color change.
+    /// </summary>
+    [Test]
+    public void RedoBackgroundColorChangeWhenNoRedoExceptionalTest()
+    {
+        // Arrange
+        Debug.Assert(viewModel != null, nameof(viewModel) + " != null");
+
+        // Act and Assert
+        Assert.Multiple(() =>
+            {
+                // The viewmodel should know that the stack is empty, and thus the option to redo will not be available
+                Assert.That(viewModel.RedoAvailable, Is.False);
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    // The redo stack is empty so the stack pop will result in InvalidOperationException
+                    viewModel.RedoCommand();
+                });
+            }
+        );
     }
 }

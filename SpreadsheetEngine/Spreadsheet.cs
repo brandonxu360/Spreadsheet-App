@@ -20,6 +20,12 @@ public class Spreadsheet
     private readonly Cell?[,] cells;
 
     /// <summary>
+    /// Instance of command invoker to execute the set commands with.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private readonly CommandInvoker commandInvoker;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
     /// </summary>
     /// <param name="rowCount">The number of rows in the spreadsheet.</param>
@@ -28,6 +34,9 @@ public class Spreadsheet
     {
         this.RowCount = rowCount;
         this.ColumnCount = columnCount;
+
+        // Instantiate the invoker
+        this.commandInvoker = new CommandInvoker();
 
         // Initialize the 2D array of cells according to the provided dimensions
         this.cells = new Cell[rowCount, columnCount];
@@ -59,6 +68,67 @@ public class Spreadsheet
     /// Gets the number of rows in the spreadsheet.
     /// </summary>
     private int RowCount { get; }
+
+    /// <summary>
+    /// Expose the TryGetUndoCommand from the CommandInvoker.
+    /// </summary>
+    /// <returns>The top ICommand command on the undo stack, null if unsuccessful.</returns>
+    public ICommand? TryGetUndoCommand()
+    {
+        return this.commandInvoker.TryGetUndoCommand();
+    }
+
+    /// <summary>
+    /// Expose the TryGetRedoCommand from the CommandInvoker.
+    /// </summary>
+    /// <returns>The top ICommand on the redo stack, null if unsuccessful.</returns>
+    public ICommand? TryGetRedoCommand()
+    {
+        return this.commandInvoker.TryGetRedoCommand();
+    }
+
+    /// <summary>
+    /// Performs undo operation on the spreadsheet.
+    /// </summary>
+    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
+    public void Undo()
+    {
+        this.commandInvoker.Undo();
+    }
+
+    /// <summary>
+    /// Performs redo operation on the spreadsheet.
+    /// </summary>
+    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
+    public void Redo()
+    {
+        this.commandInvoker.Redo();
+    }
+
+    /// <summary>
+    /// Gets the cell that will have its text edited and calls the commandInvoker to edit the cell text using a command.
+    /// </summary>
+    /// <param name="rowIndex">The row index corresponding to the cell location.</param>
+    /// <param name="columnIndex">The column index corresponding to the cell location.</param>
+    /// <param name="newText">The new string text to set the cell text to.</param>
+    public void EditCellText(int rowIndex, int columnIndex, string newText)
+    {
+        var cell = this.GetCell(rowIndex, columnIndex);
+
+        // Call the command invoker to edit the cell text
+        this.commandInvoker.EditCellText(cell, newText);
+    }
+
+    /// <summary>
+    /// Calls the command invoker to use a command to change the cell background color of the selected cells.
+    /// </summary>
+    /// <param name="selectedCells">The list of cells to change the background color of (selected cells).</param>
+    /// <param name="newColor">The new uint color to set the backgrounds colors to.</param>
+    public void ChangeCellColor(List<Cell> selectedCells, uint newColor)
+    {
+        // Call the command invoker to change the cell background color
+        this.commandInvoker.ChangeCellColor(selectedCells, newColor);
+    }
 
     /// <summary>
     /// Returns the cell of at the specified column and row index.
