@@ -118,6 +118,13 @@ public class CommandInvoker
     /// </summary>
     public void Redo()
     {
-        throw new NotImplementedException();
+        // Get the most recent "undid" command
+        var command = this.redoStack.Pop();
+
+        // Call the execute method on that command to redo it
+        command.Execute();
+
+        // Add the command to the undo stack
+        this.undoStack.Push(command);
     }
 }
