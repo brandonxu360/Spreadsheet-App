@@ -51,7 +51,7 @@ public class EditTextCommand : ICommand
     /// <exception cref="NotImplementedException">This method is not yet implemented.</exception>
     public void Execute()
     {
-        throw new NotImplementedException();
+        this.cell.Text = this.newText;
     }
 
     /// <summary>
@@ -60,6 +60,6 @@ public class EditTextCommand : ICommand
     /// <exception cref="NotImplementedException">This method is not yet implemented.</exception>
     public void Undo()
     {
-        throw new NotImplementedException();
+        this.cell.Text = this.oldText;
     }
 }

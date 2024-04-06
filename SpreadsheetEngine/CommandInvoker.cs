@@ -69,7 +69,15 @@ public class CommandInvoker
     /// <param name="newText">The new text to set the text property to.</param>
     public void EditCellText(Cell cell, string newText)
     {
-        throw new NotImplementedException();
+        // Create the command and execute it
+        var command = new EditTextCommand(cell, newText);
+        command.Execute();
+
+        // Add the command to the undo stack
+        this.undoStack.Push(command);
+
+        // Clear the redo stack since a new command was executed
+        this.redoStack.Clear();
     }
 
     /// <summary>
