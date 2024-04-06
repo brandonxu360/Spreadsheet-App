@@ -56,7 +56,10 @@ public class ChangeColorCommand : ICommand
     /// <exception cref="NotImplementedException">This method is not yet implemented.</exception>
     public void Execute()
     {
-        throw new NotImplementedException();
+        foreach (var cell in this.cells)
+        {
+            cell.BackgroundColor = this.newColor;
+        }
     }
 
     /// <summary>
@@ -65,6 +68,15 @@ public class ChangeColorCommand : ICommand
     /// <exception cref="NotImplementedException">This method is not yet implemented.</exception>
     public void Undo()
     {
-        throw new NotImplementedException();
+        var cellColorPairs = this.oldColors;
+        if (cellColorPairs == null)
+        {
+            throw new InvalidOperationException();
+        }
+
+        foreach (var cellColorPair in cellColorPairs)
+        {
+            cellColorPair.Key.BackgroundColor = cellColorPair.Value;
+        }
     }
 }

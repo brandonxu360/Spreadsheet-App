@@ -87,7 +87,15 @@ public class CommandInvoker
     /// <param name="newColor">The new color to set the text background color to.</param>
     public void ChangeCellColor(List<Cell> cells, uint newColor)
     {
-        throw new NotImplementedException();
+        // Create the command and execute it
+        var command = new ChangeColorCommand(cells, newColor);
+        command.Execute();
+
+        // Add the command to the undo stack
+        this.undoStack.Push(command);
+
+        // Clear the redo stack since a new command was executed
+        this.redoStack.Clear();
     }
 
     /// <summary>
