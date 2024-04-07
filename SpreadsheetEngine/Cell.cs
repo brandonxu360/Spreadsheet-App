@@ -30,6 +30,11 @@ public abstract class Cell : INotifyPropertyChanged
     private string text;
 
     /// <summary>
+    /// The encapsulated background color of the cell.
+    /// </summary>
+    private uint backgroundColor;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Cell"/> class.
     /// </summary>
     /// <param name="rowIndex">The row index of the cell.</param>
@@ -42,6 +47,9 @@ public abstract class Cell : INotifyPropertyChanged
         this.ReferencedCellNames = new HashSet<string>();
         this.text = string.Empty;
         this.value = string.Empty;
+
+        // Default background color set to white
+        this.BackgroundColor = 0xFFFFFFFF;
     }
 
     /// <summary>
@@ -79,6 +87,19 @@ public abstract class Cell : INotifyPropertyChanged
         {
             // Must be implemented in children class
             this.SetValue(value);
+            this.OnPropertyChanged();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the background color represented with a uint.
+    /// </summary>
+    public uint BackgroundColor
+    {
+        get => this.backgroundColor;
+        set
+        {
+            this.backgroundColor = value;
             this.OnPropertyChanged();
         }
     }

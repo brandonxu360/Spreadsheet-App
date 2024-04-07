@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace SpreadsheetEngine;
+namespace SpreadsheetEngine.ExpressionTree;
 
 /// <summary>
 /// The base class for all expression tree nodes.

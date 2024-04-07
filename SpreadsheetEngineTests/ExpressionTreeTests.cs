@@ -2,12 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Diagnostics;
-
 namespace SpreadsheetEngineTests;
 
 using System.Reflection;
-using SpreadsheetEngine;
+using SpreadsheetEngine.ExpressionTree;
 
 /// <summary>
 /// Class to unit test the ExpressionTree functionality.
