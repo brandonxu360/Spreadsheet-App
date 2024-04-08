@@ -142,6 +142,26 @@ public class Spreadsheet
     }
 
     /// <summary>
+    /// Saves an XML file to the stream using XMLWriter.
+    /// </summary>
+    /// <param name="stream">The stream to write the XML to.</param>
+    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
+    public void SaveToStream(Stream stream)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Loads an XML file from the stream using XMLReader.
+    /// </summary>
+    /// <param name="stream">The stream to read the XML from.</param>
+    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
+    public void LoadFromStream(Stream stream)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// Returns the cell of at the specified column and row index.
     /// </summary>
     /// <param name="cellName">The cell name/reference (ie. "A1").</param>
