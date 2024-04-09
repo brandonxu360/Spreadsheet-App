@@ -5,6 +5,7 @@
 namespace SpreadsheetEngineTests;
 
 using System.Diagnostics;
+using System.Text;
 using SpreadsheetEngine;
 
 /// <summary>
@@ -360,5 +361,115 @@ internal class SpreadsheetTests
 
         // Assert
         Assert.That(cellA1.Value, Is.EqualTo("hello"));
+    }
+
+    /// <summary>
+    /// Test the normal case when saving a spreadsheet to a valid stream.
+    /// </summary>
+    [Test]
+    public void SaveXmlToStreamTest()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(3, 3);
+        spreadsheet.GetCell(0, 0).BackgroundColor = 0xFF8000FF; // Change the background color of A1
+        spreadsheet.GetCell(0, 0).Text = "=A2"; // Change the text of A1
+
+        using var memoryStream = new MemoryStream();
+
+        // Act
+        spreadsheet.SaveToStream(memoryStream);
+        memoryStream.Position = 0;
+        string resultXml;
+        using (var reader = new StreamReader(memoryStream))
+        {
+            resultXml = reader.ReadToEnd();
+        }
+
+        // Assert
+        string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet><cell name=\"A1\"><bgcolor>FF8000FF</bgcolor><text>=A2</text></cell></spreadsheet>";
+        Assert.That(resultXml, Is.EqualTo(expectedXml));
+    }
+
+    /// <summary>
+    /// Test the normal case when loading valid Xml from a valid stream.
+    /// </summary>
+    [Test]
+    public void LoadValidXmlFromValidStreamTest()
+    {
+        // Arrange
+        var loadedSpreadsheet = new Spreadsheet(3, 3);
+        var testXml =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet><cell name=\"A1\"><bgcolor>FF8000FF</bgcolor><text>=A2</text></cell></spreadsheet>";
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(testXml));
+
+        // Act: Load the spreadsheet from the memory stream
+        loadedSpreadsheet.LoadFromStream(memoryStream);
+
+        // Assert
+        Assert.That(loadedSpreadsheet.GetCell(0, 0).BackgroundColor, Is.EqualTo(0xFF8000FF));
+        Assert.That(loadedSpreadsheet.GetCell(0, 0).Text, Is.EqualTo("=A2"));
+    }
+
+    /// <summary>
+    /// Test the case where the cells have extra, unexpected tags (should ignore the tags).
+    /// </summary>
+    [Test]
+    public void LoadXmlWithExtraTagsTest()
+    {
+        // Arrange
+        var loadedSpreadsheet = new Spreadsheet(3, 3);
+        var testXml =
+            "<spreadsheet>\n<cell unusedattr=\"abc\" name=\"B1\"> <text>=A1+6</text>\n<some_tag_you_didnt_write>blah</some_tag_you_didnt_write>\n<bgcolor>FF8000</bgcolor> <another_unused_tag>data</another_unused_tag>\n</cell>\n</spreadsheet>";
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(testXml));
+
+        // Act: Load the spreadsheet from the memory stream
+        loadedSpreadsheet.LoadFromStream(memoryStream);
+
+        // Assert
+        Assert.That(loadedSpreadsheet.GetCell("B1").BackgroundColor, Is.EqualTo(0xFF8000));
+        Assert.That(loadedSpreadsheet.GetCell("B1").Text, Is.EqualTo("=A1+6"));
+    }
+
+    /// <summary>
+    /// Test the case where the cell tags are in a different order (test resilience to unordered tags).
+    /// </summary>
+    [Test]
+    public void LoadXmlWithUnorderedTagsTest()
+    {
+        // Arrange
+        var loadedSpreadsheet = new Spreadsheet(3, 3);
+        var testXml =
+            "<spreadsheet>\n<cell unusedattr=\"abc\" name=\"B1\"> <bgcolor>FF8000</bgcolor>\n<text>=A1+6</text>\n</cell>\n</spreadsheet>";
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(testXml));
+
+        // Act: Load the spreadsheet from the memory stream
+        loadedSpreadsheet.LoadFromStream(memoryStream);
+
+        // Assert
+        Assert.That(loadedSpreadsheet.GetCell("B1").BackgroundColor, Is.EqualTo(0xFF8000));
+        Assert.That(loadedSpreadsheet.GetCell("B1").Text, Is.EqualTo("=A1+6"));
+    }
+
+    /// <summary>
+    /// Test the case when the Xml is invalid (no saved cells). Unchanged spreadsheet (default values) expected.
+    /// </summary>
+    [Test]
+    public void LoadInvalidXmlFromStreamTest()
+    {
+        // Arrange
+        var invalidXml = "<invalid></invalid>";
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(invalidXml));
+
+        var spreadsheet = new Spreadsheet(3, 3);
+
+        // Act
+        spreadsheet.LoadFromStream(memoryStream);
+
+        // Assert
+        Assert.That(spreadsheet.GetCell("A1").Text, Is.EqualTo(string.Empty));
+        Assert.That(spreadsheet.GetCell("A1").BackgroundColor, Is.EqualTo(0xFFFFFFFF));
     }
 }

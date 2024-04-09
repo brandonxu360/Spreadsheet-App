@@ -50,12 +50,20 @@ public abstract class Cell : INotifyPropertyChanged
 
         // Default background color set to white
         this.BackgroundColor = 0xFFFFFFFF;
+
+        // Initialize HasChanged flag to false;
+        this.HasChanged = false;
     }
 
     /// <summary>
     /// The event handler for the cell class.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// Gets a value indicating whether the cell properties have been changed (for saving purposes).
+    /// </summary>
+    public bool HasChanged { get; private set; }
 
     /// <summary>
     /// Gets the set of cells that this cell is currently referencing/subscribed to.
@@ -69,10 +77,14 @@ public abstract class Cell : INotifyPropertyChanged
     {
         get => this.text;
 
-        set =>
-
+        set
+        {
             // Call OnPropertyChanged if text changes
             this.SetField(ref this.text, value);
+
+            // Set HasChanged to true
+            this.HasChanged = true;
+        }
     }
 
     /// <summary>
@@ -100,6 +112,7 @@ public abstract class Cell : INotifyPropertyChanged
         set
         {
             this.backgroundColor = value;
+            this.HasChanged = true;
             this.OnPropertyChanged();
         }
     }

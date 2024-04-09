@@ -5,6 +5,7 @@
 namespace SpreadsheetEngine;
 
 using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 
 /// <summary>
@@ -14,16 +15,16 @@ using System.Globalization;
 public class Spreadsheet
 {
     /// <summary>
-    /// The 2D array of cells to represent the cells of the spreadsheet.
-    /// </summary>
-    // ReSharper disable once InconsistentNaming (conflicts with stylecop)
-    private readonly Cell?[,] cells;
-
-    /// <summary>
     /// Instance of command invoker to execute the set commands with.
     /// </summary>
     // ReSharper disable once InconsistentNaming
     private readonly CommandInvoker commandInvoker;
+
+    /// <summary>
+    /// The 2D array of cells to represent the cells of the spreadsheet.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming (conflicts with stylecop)
+    private Cell?[,]? cells;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
@@ -38,25 +39,7 @@ public class Spreadsheet
         // Instantiate the invoker
         this.commandInvoker = new CommandInvoker();
 
-        // Initialize the 2D array of cells according to the provided dimensions
-        this.cells = new Cell[rowCount, columnCount];
-
-        // Create a spreadsheet cell and assign it to each position in the cell array
-        for (var i = 0; i < rowCount; i++)
-        {
-            for (var j = 0; j < columnCount; j++)
-            {
-                this.cells[i, j] = new SpreadsheetCell(i, j);
-
-                // Make sure the cell was successfully created and nonnull
-                if (this.cells[i, j] != null)
-                {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                    this.cells[i, j].PropertyChanged += this.OnCellPropertyChanged;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                }
-            }
-        }
+        this.InitializeEmptyCellMatrix(rowCount, columnCount);
     }
 
     /// <summary>
@@ -138,7 +121,7 @@ public class Spreadsheet
     /// <returns>The Cell object at the column and cell index.</returns>
     public Cell GetCell(int rowIndex, int columnIndex)
     {
-        return this.cells[rowIndex, columnIndex] ?? throw new IndexOutOfRangeException();
+        return this.cells?[rowIndex, columnIndex] ?? throw new IndexOutOfRangeException();
     }
 
     /// <summary>
@@ -148,7 +131,7 @@ public class Spreadsheet
     /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
     public void SaveToStream(Stream stream)
     {
-        throw new NotImplementedException();
+        throw new RowNotInTableException();
     }
 
     /// <summary>
@@ -166,7 +149,7 @@ public class Spreadsheet
     /// </summary>
     /// <param name="cellName">The cell name/reference (ie. "A1").</param>
     /// <returns>The Cell object at the specified location.</returns>
-    private Cell GetCell(string cellName)
+    public Cell GetCell(string cellName)
     {
         // Parse the cell name to extract row and column indices
         var columnIndex = cellName[0] - 'A'; // Convert the column letter to a zero-based index
@@ -180,6 +163,29 @@ public class Spreadsheet
 
         // Retrieve the cell object from the 2D array and return it
         return this.GetCell(rowIndex, columnIndex);
+    }
+
+    private void InitializeEmptyCellMatrix(int rowCount, int columnCount)
+    {
+        // Initialize the 2D array of cells according to the provided dimensions
+        this.cells = new Cell[rowCount, columnCount];
+
+        // Create a spreadsheet cell and assign it to each position in the cell array
+        for (var i = 0; i < rowCount; i++)
+        {
+            for (var j = 0; j < columnCount; j++)
+            {
+                this.cells[i, j] = new SpreadsheetCell(i, j);
+
+                // Make sure the cell was successfully created and nonnull
+                if (this.cells[i, j] != null)
+                {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    this.cells[i, j].PropertyChanged += this.OnCellPropertyChanged;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                }
+            }
+        }
     }
 
     /// <summary>
