@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+using System.Xml;
+
 namespace SpreadsheetEngine;
 
 using System.ComponentModel;
@@ -131,7 +133,42 @@ public class Spreadsheet
     /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
     public void SaveToStream(Stream stream)
     {
-        throw new RowNotInTableException();
+        // Create an XML writer using the stream
+        using var writer = XmlWriter.Create(stream);
+
+        // Start writing the root element
+        writer.WriteStartElement("spreadsheet");
+
+        // Iterate through each cell in the spreadsheet
+        for (var i = 0; i < this.RowCount; i++)
+        {
+            for (var j = 0; j < this.ColumnCount; j++)
+            {
+                var cell = this.cells?[i, j];
+
+                // Check if the cell has changed properties
+                if (cell is not { HasChanged: true })
+                {
+                    continue;
+                }
+
+                // Write the cell element
+                writer.WriteStartElement("cell");
+                writer.WriteAttributeString("name", cell.GetName());
+
+                // Write the bgcolor element
+                writer.WriteStartElement("bgcolor");
+                writer.WriteString(cell.BackgroundColor.ToString("X"));
+                writer.WriteEndElement();
+
+                // Write the text element
+                writer.WriteStartElement("text");
+                writer.WriteString(cell.Text);
+                writer.WriteEndElement();
+
+                writer.WriteEndElement(); // Close cell element
+            }
+        }
     }
 
     /// <summary>
