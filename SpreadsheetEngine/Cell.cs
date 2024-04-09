@@ -61,9 +61,9 @@ public abstract class Cell : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
-    /// Gets a value indicating whether the cell properties have been changed (for saving purposes).
+    /// Gets or sets a value indicating whether the cell properties have been changed (for saving purposes).
     /// </summary>
-    public bool HasChanged { get; private set; }
+    public bool HasChanged { get; set; }
 
     /// <summary>
     /// Gets the set of cells that this cell is currently referencing/subscribed to.

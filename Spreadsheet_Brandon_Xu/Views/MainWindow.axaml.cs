@@ -5,8 +5,11 @@
 namespace Spreadsheet_Brandon_Xu.Views;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -14,6 +17,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 
@@ -41,7 +45,30 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
                     this.InitializeDataGrid();
                 }
             });
+
+        // Register the file dialog actions
+        this.WhenActivated(d =>
+        {
+            var mainWindowViewModel = this.ViewModel;
+            if (mainWindowViewModel == null)
+            {
+                return;
+            }
+
+            d(mainWindowViewModel.AskForFileToLoad.RegisterHandler(this.DoOpenFile));
+            d(mainWindowViewModel.AskForFileToSave.RegisterHandler(this.DoSaveFile));
+        });
     }
+
+    /// <summary>
+    /// Gets filePickerFileType for Xml (.xml).
+    /// </summary>
+    private static FilePickerFileType Xml { get; } = new("Xml")
+    {
+        Patterns = new[] { "*.xml" },
+        AppleUniformTypeIdentifiers = new[] { "public.xml" },
+        MimeTypes = new[] { "xml/*" },
+    };
 
     /// <summary>
     /// Initializes the DataGrid with columns A-Z.
@@ -200,6 +227,60 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         {
             // Call the MainViewModel to change the color of the selected cells to the ColorPicker's new color using a command
             mainWindowViewModel.ChangeSelectedCellColor(colorPicker.Color.ToUInt32());
+        }
+    }
+
+    /// <summary>
+    /// Opens a dialog to select a file which will be used to load content.
+    /// </summary>
+    /// <param name="interaction">Defines the Input/Output necessary for this workflow to complete successfully.</param>
+    /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+    private async Task DoOpenFile(InteractionContext<Unit, IStorageFile?> interaction)
+    {
+        // Get top level from the current control. Alternatively, you can use Window reference instead.
+        var topLevel = TopLevel.GetTopLevel(this);
+        Console.Write(topLevel);
+
+        // List of filtered types (xml files)
+        var fileTypes = new List<FilePickerFileType> { Xml };
+
+        if (topLevel != null)
+        {
+            // Start async operation to open the dialog.
+            var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = "Open Text File",
+                AllowMultiple = false,
+                FileTypeFilter = fileTypes,
+            });
+
+            interaction.SetOutput(files.Count == 1 ? files[0] : null);
+        }
+    }
+
+    /// <summary>
+    /// Opens a dialog to select a file in which content will be saved.
+    /// </summary>
+    /// <param name="interaction">Defines the Input/Output necessary for this workflow to complete successfully.</param>
+    /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+    private async Task DoSaveFile(InteractionContext<Unit, IStorageFile?> interaction)
+    {
+        // Get top level from the current control. Alternatively, you can use Window reference instead.
+        var topLevel = TopLevel.GetTopLevel(this);
+
+        // List of filtered types (xml files)
+        var fileTypes = new List<FilePickerFileType> { Xml };
+
+        if (topLevel != null)
+        {
+            // Start async operation to open the dialog.
+            var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Save Text File",
+                FileTypeChoices = fileTypes,
+            });
+
+            interaction.SetOutput(file);
         }
     }
 }

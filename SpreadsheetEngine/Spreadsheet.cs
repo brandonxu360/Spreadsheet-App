@@ -39,7 +39,25 @@ public class Spreadsheet
         // Instantiate the invoker
         this.commandInvoker = new CommandInvoker();
 
-        this.InitializeEmptyCellMatrix(rowCount, columnCount);
+        // Initialize the 2D array of cells according to the provided dimensions
+        this.cells = new Cell[rowCount, columnCount];
+
+        // Create a spreadsheet cell and assign it to each position in the cell array
+        for (var i = 0; i < rowCount; i++)
+        {
+            for (var j = 0; j < columnCount; j++)
+            {
+                this.cells[i, j] = new SpreadsheetCell(i, j);
+
+                // Make sure the cell was successfully created and nonnull
+                if (this.cells[i, j] != null)
+                {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    this.cells[i, j].PropertyChanged += this.OnCellPropertyChanged;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -175,7 +193,7 @@ public class Spreadsheet
     public void LoadFromStream(Stream stream)
     {
         // Clear existing spreadsheet data by reinitializing the cell matrix
-        this.InitializeEmptyCellMatrix(this.RowCount, this.ColumnCount);
+        this.ResetCells();
 
         // Create an XML reader using the stream
         using var reader = XmlReader.Create(stream);
@@ -265,26 +283,29 @@ public class Spreadsheet
         return this.GetCell(rowIndex, columnIndex);
     }
 
-    private void InitializeEmptyCellMatrix(int rowCount, int columnCount)
+    /// <summary>
+    /// Reset all the cells in the spreadsheet to their default values (empty text, white background).
+    /// </summary>
+    private void ResetCells()
     {
-        // Initialize the 2D array of cells according to the provided dimensions
-        this.cells = new Cell[rowCount, columnCount];
-
-        // Create a spreadsheet cell and assign it to each position in the cell array
-        for (var i = 0; i < rowCount; i++)
+        // Catch case where cells is not initialized
+        if (this.cells == null)
         {
-            for (var j = 0; j < columnCount; j++)
-            {
-                this.cells[i, j] = new SpreadsheetCell(i, j);
+            return;
+        }
 
-                // Make sure the cell was successfully created and nonnull
-                if (this.cells[i, j] != null)
-                {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                    this.cells[i, j].PropertyChanged += this.OnCellPropertyChanged;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                }
+        // Set each cell to its default values
+        foreach (var cell in this.cells)
+        {
+            // Catch case where cell is null
+            if (cell == null)
+            {
+                continue;
             }
+
+            cell.Text = string.Empty;
+            cell.BackgroundColor = 0xFFFFFFFF;
+            cell.HasChanged = false;
         }
     }
 
