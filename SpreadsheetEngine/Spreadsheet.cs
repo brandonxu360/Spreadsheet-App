@@ -2,13 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using System.Xml;
-
 namespace SpreadsheetEngine;
 
 using System.ComponentModel;
-using System.Data;
 using System.Globalization;
+using System.Xml;
 
 /// <summary>
 /// The spreadsheet class that will serve as a container for a 2D array of cells. It will also serve
@@ -130,7 +128,6 @@ public class Spreadsheet
     /// Saves an XML file to the stream using XMLWriter.
     /// </summary>
     /// <param name="stream">The stream to write the XML to.</param>
-    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
     public void SaveToStream(Stream stream)
     {
         // Create an XML writer using the stream
@@ -175,10 +172,76 @@ public class Spreadsheet
     /// Loads an XML file from the stream using XMLReader.
     /// </summary>
     /// <param name="stream">The stream to read the XML from.</param>
-    /// <exception cref="NotImplementedException">This method is not implemented yet.</exception>
     public void LoadFromStream(Stream stream)
     {
-        throw new NotImplementedException();
+        // Clear existing spreadsheet data by reinitializing the cell matrix
+        this.InitializeEmptyCellMatrix(this.RowCount, this.ColumnCount);
+
+        // Create an XML reader using the stream
+        using var reader = XmlReader.Create(stream);
+
+        // Iterate through the Xml document, looking for cells
+        while (reader.Read())
+        {
+            // If element is not a cell, skip it
+            if (reader.NodeType != XmlNodeType.Element || reader.Name != "cell")
+            {
+                continue;
+            }
+
+            // Read cell attributes
+            var cellName = reader.GetAttribute("name");
+            string? bgColorHex = null;
+            string? text = null;
+
+            // Move to the first child node of the "cell" element
+            reader.ReadStartElement();
+
+            // Read all child elements of the "cell" element
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                // Check that the child element is the correct node type
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    // Set the cell attributes depending on the name of the node
+                    switch (reader.Name)
+                    {
+                        case "bgcolor":
+                            bgColorHex = reader.ReadElementContentAsString();
+                            break;
+                        case "text":
+                            text = reader.ReadElementContentAsString();
+                            break;
+                        default:
+                            // Skip any unexpected tags
+                            reader.Skip();
+                            break;
+                    }
+                }
+                else
+                {
+                    reader.Read(); // Move to the next node
+                }
+            }
+
+            // Create and populate the cell
+            if (cellName == null)
+            {
+                continue;
+            }
+
+            var cell = this.GetCell(cellName);
+            if (bgColorHex != null)
+            {
+                var bgColor = uint.Parse(bgColorHex, NumberStyles.HexNumber);
+                cell.BackgroundColor = bgColor;
+            }
+
+            if (text != null)
+            {
+                cell.Text = text;
+            }
+        }
     }
 
     /// <summary>
