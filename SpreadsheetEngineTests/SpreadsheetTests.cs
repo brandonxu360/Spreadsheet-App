@@ -391,6 +391,31 @@ internal class SpreadsheetTests
     }
 
     /// <summary>
+    /// Test cases of saving an unmodified spreadsheet to stream (no cells should be written).
+    /// </summary>
+    [Test]
+    public void SaveUnchangedSpreadsheetXmlToStreamTest()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(3, 3);
+
+        using var memoryStream = new MemoryStream();
+
+        // Act
+        spreadsheet.SaveToStream(memoryStream);
+        memoryStream.Position = 0;
+        string resultXml;
+        using (var reader = new StreamReader(memoryStream))
+        {
+            resultXml = reader.ReadToEnd();
+        }
+
+        // Assert
+        string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet />";
+        Assert.That(resultXml, Is.EqualTo(expectedXml));
+    }
+
+    /// <summary>
     /// Test the normal case when loading valid Xml from a valid stream.
     /// </summary>
     [Test]
