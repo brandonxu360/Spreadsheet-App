@@ -437,6 +437,42 @@ internal class SpreadsheetTests
     }
 
     /// <summary>
+    /// Test the normal case when loading valid Xml containing formulas displays the correct evaluation upon loading.
+    /// </summary>
+    [Test]
+    public void LoadXmlAndEvaluateFormulaTest()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(3, 3);
+        var testXml =
+            "<spreadsheet>\n<cell name=\"A1\">\n<bgcolor>FFFFFFFF</bgcolor>\n<text>=9+2</text>\n</cell>\n" +
+            "<cell name=\"B1\">\n<bgcolor>FFFFFFFF</bgcolor>\n<text>=A1*4</text>\n</cell>\n" +
+            "<cell name=\"A2\">\n<bgcolor>FFFFFFFF</bgcolor>\n<text>=A1+B1</text>\n</cell>\n" +
+            "<cell name=\"B2\">\n<bgcolor>FFFFFFFF</bgcolor>\n<text>=A1*A2/B1</text>\n</cell>\n</spreadsheet>";
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(testXml));
+
+        // Act: Load the spreadsheet from the memory stream
+        spreadsheet.LoadFromStream(memoryStream);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            // A1 formula evaluation (9+2=11)
+            Assert.That(spreadsheet.GetCell("A1").Value, Is.EqualTo("11"));
+
+            // B1 formula evaluation (A1*4=44)
+            Assert.That(spreadsheet.GetCell("B1").Value, Is.EqualTo("44"));
+
+            // A2 formula evaluation (A1+B1=55)
+            Assert.That(spreadsheet.GetCell("A2").Value, Is.EqualTo("55"));
+
+            // B2 formula evaluation (A1*A2/B1=13.75)
+            Assert.That(spreadsheet.GetCell("B2").Value, Is.EqualTo("13.75"));
+        });
+    }
+
+    /// <summary>
     /// Test the case where the cells have extra, unexpected tags (should ignore the tags).
     /// </summary>
     [Test]
