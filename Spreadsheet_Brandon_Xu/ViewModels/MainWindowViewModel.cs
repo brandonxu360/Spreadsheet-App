@@ -144,6 +144,9 @@ public class MainWindowViewModel : ViewModelBase
         // If the user selected a file, open writing stream from the file.
         await using var stream = await filePath.OpenReadAsync();
         this.spreadsheet?.LoadFromStream(stream);
+
+        // Update the undo/redo options
+        this.UpdateUndoRedoHeaders();
     }
 
     /// <summary>
