@@ -260,6 +260,9 @@ public class Spreadsheet
                 cell.Text = text;
             }
         }
+
+        // Clear the undo/redo stacks after loading a file
+        this.commandInvoker.ClearUndoRedoStacks();
     }
 
     /// <summary>
