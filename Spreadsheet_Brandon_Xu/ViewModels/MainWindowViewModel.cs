@@ -7,7 +7,10 @@ namespace Spreadsheet_Brandon_Xu.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using ReactiveUI;
 using SpreadsheetEngine;
 
@@ -64,8 +67,24 @@ public class MainWindowViewModel : ViewModelBase
         this.undoMenuItemHeader = "Undo";
         this.redoMenuItemHeader = "Redo";
 
+        // Create an interaction between the view model and the view for the file to be loaded:
+        this.AskForFileToLoad = new Interaction<Unit, IStorageFile?>();
+
+        // Similarly to load, there is a need to create an interaction for saving into a file:
+        this.AskForFileToSave = new Interaction<Unit, IStorageFile?>();
+
         this.InitializeSpreadsheet();
     }
+
+    /// <summary>
+    /// Gets prompts the view to allow the user to select a file for loading by triggering the DoOpenFile method in the MainWindow.
+    /// </summary>
+    public Interaction<Unit, IStorageFile?> AskForFileToLoad { get; }
+
+    /// <summary>
+    /// Gets prompts the view to allow the user to select a file for loading by triggering the DoOpenFile method in the MainWindow.
+    /// </summary>
+    public Interaction<Unit, IStorageFile?> AskForFileToSave { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether an undo command is available (used for enabling/disabling the undo menu item).
@@ -109,6 +128,40 @@ public class MainWindowViewModel : ViewModelBase
     /// Gets or sets the spreadsheet data that is exposed and used by the UI. This is a list of RowViewModels, and each row consists of CellViewModels.
     /// </summary>
     public List<RowViewModel>? SpreadsheetData { get; set; }
+
+    /// <summary>
+    /// This method will be executed when the user wants to load content from a file.
+    /// </summary>
+    public async void LoadFromFile()
+    {
+        // Wait for the user to select the file to load from.
+        var filePath = await this.AskForFileToLoad.Handle(default);
+        if (filePath == null)
+        {
+            return;
+        }
+
+        // If the user selected a file, open writing stream from the file.
+        await using var stream = await filePath.OpenReadAsync();
+        this.spreadsheet?.LoadFromStream(stream);
+    }
+
+    /// <summary>
+    /// This method will be executed when the user wants to load content from a file.
+    /// </summary>
+    public async void SaveToFile()
+    {
+        // Wait for user to select file to save to.
+        var file = await this.AskForFileToSave.Handle(default);
+        if (file == null)
+        {
+            return;
+        }
+
+        // Open writing stream from the file.
+        await using var stream = await file.OpenWriteAsync();
+        this.spreadsheet?.SaveToStream(stream);
+    }
 
     /// <summary>
     /// Expose EditCellText functionality from the Spreadsheet to the UI.

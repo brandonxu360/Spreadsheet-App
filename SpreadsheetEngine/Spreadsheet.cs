@@ -6,6 +6,7 @@ namespace SpreadsheetEngine;
 
 using System.ComponentModel;
 using System.Globalization;
+using System.Xml;
 
 /// <summary>
 /// The spreadsheet class that will serve as a container for a 2D array of cells. It will also serve
@@ -14,16 +15,16 @@ using System.Globalization;
 public class Spreadsheet
 {
     /// <summary>
-    /// The 2D array of cells to represent the cells of the spreadsheet.
-    /// </summary>
-    // ReSharper disable once InconsistentNaming (conflicts with stylecop)
-    private readonly Cell?[,] cells;
-
-    /// <summary>
     /// Instance of command invoker to execute the set commands with.
     /// </summary>
     // ReSharper disable once InconsistentNaming
     private readonly CommandInvoker commandInvoker;
+
+    /// <summary>
+    /// The 2D array of cells to represent the cells of the spreadsheet.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming (conflicts with stylecop)
+    private Cell?[,]? cells;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
@@ -138,7 +139,127 @@ public class Spreadsheet
     /// <returns>The Cell object at the column and cell index.</returns>
     public Cell GetCell(int rowIndex, int columnIndex)
     {
-        return this.cells[rowIndex, columnIndex] ?? throw new IndexOutOfRangeException();
+        return this.cells?[rowIndex, columnIndex] ?? throw new IndexOutOfRangeException();
+    }
+
+    /// <summary>
+    /// Saves an XML file to the stream using XMLWriter.
+    /// </summary>
+    /// <param name="stream">The stream to write the XML to.</param>
+    public void SaveToStream(Stream stream)
+    {
+        // Create an XML writer using the stream
+        using var writer = XmlWriter.Create(stream);
+
+        // Start writing the root element
+        writer.WriteStartElement("spreadsheet");
+
+        // Iterate through each cell in the spreadsheet
+        for (var i = 0; i < this.RowCount; i++)
+        {
+            for (var j = 0; j < this.ColumnCount; j++)
+            {
+                var cell = this.cells?[i, j];
+
+                // Check if the cell has changed properties
+                if (cell is not { HasChanged: true })
+                {
+                    continue;
+                }
+
+                // Write the cell element
+                writer.WriteStartElement("cell");
+                writer.WriteAttributeString("name", cell.GetName());
+
+                // Write the bgcolor element
+                writer.WriteStartElement("bgcolor");
+                writer.WriteString(cell.BackgroundColor.ToString("X"));
+                writer.WriteEndElement();
+
+                // Write the text element
+                writer.WriteStartElement("text");
+                writer.WriteString(cell.Text);
+                writer.WriteEndElement();
+
+                writer.WriteEndElement(); // Close cell element
+            }
+        }
+    }
+
+    /// <summary>
+    /// Loads an XML file from the stream using XMLReader.
+    /// </summary>
+    /// <param name="stream">The stream to read the XML from.</param>
+    public void LoadFromStream(Stream stream)
+    {
+        // Clear existing spreadsheet data by reinitializing the cell matrix
+        this.ResetCells();
+
+        // Create an XML reader using the stream
+        using var reader = XmlReader.Create(stream);
+
+        // Iterate through the Xml document, looking for cells
+        while (reader.Read())
+        {
+            // If element is not a cell, skip it
+            if (reader.NodeType != XmlNodeType.Element || reader.Name != "cell")
+            {
+                continue;
+            }
+
+            // Read cell attributes
+            var cellName = reader.GetAttribute("name");
+            string? bgColorHex = null;
+            string? text = null;
+
+            // Move to the first child node of the "cell" element
+            reader.ReadStartElement();
+
+            // Read all child elements of the "cell" element
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                // Check that the child element is the correct node type
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    // Set the cell attributes depending on the name of the node
+                    switch (reader.Name)
+                    {
+                        case "bgcolor":
+                            bgColorHex = reader.ReadElementContentAsString();
+                            break;
+                        case "text":
+                            text = reader.ReadElementContentAsString();
+                            break;
+                        default:
+                            // Skip any unexpected tags
+                            reader.Skip();
+                            break;
+                    }
+                }
+                else
+                {
+                    reader.Read(); // Move to the next node
+                }
+            }
+
+            // Create and populate the cell
+            if (cellName == null)
+            {
+                continue;
+            }
+
+            var cell = this.GetCell(cellName);
+            if (bgColorHex != null)
+            {
+                var bgColor = uint.Parse(bgColorHex, NumberStyles.HexNumber);
+                cell.BackgroundColor = bgColor;
+            }
+
+            if (text != null)
+            {
+                cell.Text = text;
+            }
+        }
     }
 
     /// <summary>
@@ -146,7 +267,7 @@ public class Spreadsheet
     /// </summary>
     /// <param name="cellName">The cell name/reference (ie. "A1").</param>
     /// <returns>The Cell object at the specified location.</returns>
-    private Cell GetCell(string cellName)
+    public Cell GetCell(string cellName)
     {
         // Parse the cell name to extract row and column indices
         var columnIndex = cellName[0] - 'A'; // Convert the column letter to a zero-based index
@@ -160,6 +281,32 @@ public class Spreadsheet
 
         // Retrieve the cell object from the 2D array and return it
         return this.GetCell(rowIndex, columnIndex);
+    }
+
+    /// <summary>
+    /// Reset all the cells in the spreadsheet to their default values (empty text, white background).
+    /// </summary>
+    private void ResetCells()
+    {
+        // Catch case where cells is not initialized
+        if (this.cells == null)
+        {
+            return;
+        }
+
+        // Set each cell to its default values
+        foreach (var cell in this.cells)
+        {
+            // Catch case where cell is null
+            if (cell == null)
+            {
+                continue;
+            }
+
+            cell.Text = string.Empty;
+            cell.BackgroundColor = 0xFFFFFFFF;
+            cell.HasChanged = false;
+        }
     }
 
     /// <summary>

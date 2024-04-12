@@ -63,6 +63,15 @@ public class CommandInvoker
     }
 
     /// <summary>
+    /// Clears the undo and redo stacks.
+    /// </summary>
+    public void ClearUndoRedoStacks()
+    {
+        this.redoStack.Clear();
+        this.undoStack.Clear();
+    }
+
+    /// <summary>
     /// Uses the EditTextCommand to edit the cell text.
     /// </summary>
     /// <param name="cell">The cell that should be edited.</param>

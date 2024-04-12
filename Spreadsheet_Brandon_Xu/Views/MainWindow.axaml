@@ -23,7 +23,10 @@
     <DockPanel>
         <StackPanel Orientation="Horizontal" Background="Gainsboro" DockPanel.Dock="Top">
             <Menu>
-                <MenuItem Header="File"></MenuItem>
+                <MenuItem Header="File">
+                    <MenuItem Header="_Open..." Command="{Binding LoadFromFile}"/>
+                    <MenuItem Header="Save to file" Command="{Binding SaveToFile}"/>
+                </MenuItem>
                 <MenuItem Header="Edit">
                     <MenuItem Name="UndoMenuItem" Header="{Binding UndoMenuItemHeader}"
                               IsEnabled="{Binding UndoAvailable}" Command="{Binding UndoCommand}">
