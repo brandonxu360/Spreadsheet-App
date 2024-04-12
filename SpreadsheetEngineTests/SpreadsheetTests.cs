@@ -497,4 +497,37 @@ internal class SpreadsheetTests
         Assert.That(spreadsheet.GetCell("A1").Text, Is.EqualTo(string.Empty));
         Assert.That(spreadsheet.GetCell("A1").BackgroundColor, Is.EqualTo(0xFFFFFFFF));
     }
+
+    /// <summary>
+    /// Tests that the undo and redo stack are cleared after loading from Xml.
+    /// </summary>
+    [Test]
+    public void UndoRedoStacksClearedAfterLoadingXmlTest()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(3, 3);
+        var testXml =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet><cell name=\"A1\"><bgcolor>FF8000FF</bgcolor><text>=A2</text></cell></spreadsheet>";
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(testXml));
+
+        // Add two commands to undo stack (one will be popped off onto redo stack
+        spreadsheet.EditCellText(0, 0, "change 1");
+        spreadsheet.EditCellText(1, 1, "change 2");
+
+        // Add a command to redo stack by performing an undo
+        spreadsheet.Undo();
+
+        // Act
+        spreadsheet.LoadFromStream(memoryStream);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            // Redo stack is empty
+            Assert.That(spreadsheet.TryGetRedoCommand(), Is.EqualTo(null));
+
+            // Undo stack is empty
+            Assert.That(spreadsheet.TryGetUndoCommand(), Is.EqualTo(null));
+        });
+    }
 }
