@@ -566,4 +566,63 @@ internal class SpreadsheetTests
             Assert.That(spreadsheet.TryGetUndoCommand(), Is.EqualTo(null));
         });
     }
+
+    /// <summary>
+    /// Tests that invalid references are evaluated as "#InvalidRef".
+    /// </summary>
+    /// <param name="textInput">The text input that contains the invalid ref.</param>
+    [TestCase("=hi")] // Not a reference
+    [TestCase("=A123")] // Out of bounds
+    [TestCase("=A")] // Incomplete reference
+    [Test]
+    public void InvalidReferenceTest(string textInput)
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 1);
+        var cellA1 = spreadsheet.GetCell("A1");
+
+        // Act
+        cellA1.Text = textInput;
+
+        // Assert
+        Assert.That(cellA1.Value, Is.EqualTo("#InvalidRef"));
+    }
+
+    /// <summary>
+    /// Tests that self references are evaluated as "#SelfRef".
+    /// </summary>
+    [Test]
+    public void SelfReferenceTest()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 1);
+        var cellA1 = spreadsheet.GetCell("A1");
+
+        // Act
+        cellA1.Text = "=A1";
+
+        // Assert
+        Assert.That(cellA1.Value, Is.EqualTo("#SelfRef"));
+    }
+
+    /// <summary>
+    /// Tests that circular references are evaluated as "#CircularRef".
+    /// </summary>
+    [Test]
+    public void CircularReferenceTest()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(2, 1);
+        var cellA1 = spreadsheet.GetCell("A1");
+        var cellA2 = spreadsheet.GetCell("A2");
+
+        // Set the reference of A1 to A2
+        cellA1.Text = "=A2";
+
+        // Act
+        cellA2.Text = "=A1";
+
+        // Assert
+        Assert.That(cellA2.Value, Is.EqualTo("#CircularRef"));
+    }
 }
