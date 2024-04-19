@@ -625,4 +625,31 @@ internal class SpreadsheetTests
         // Assert
         Assert.That(cellA2.Value, Is.EqualTo("#CircularRef"));
     }
+
+    /// <summary>
+    /// Tests that the values update accordingly when the circular reference is resolved.
+    /// </summary>
+    [Test]
+    public void CircularReferenceUpdateTest()
+    {
+        // Arrange
+        var spreadsheet = new Spreadsheet(1, 2);
+        var cellA1 = spreadsheet.GetCell("A1");
+        var cellB1 = spreadsheet.GetCell("B1");
+
+        cellA1.Text = "test";
+        cellB1.Text = "=A1";
+        cellA1.Text = "=B1";
+        Assert.Multiple(() =>
+        {
+            Assert.That(cellA1.Value, Is.EqualTo("#CircularRef"));
+            Assert.That(cellB1.Value, Is.EqualTo("#CircularRef"));
+        });
+
+        // Act
+        cellB1.Text = "test";
+
+        // Assert
+        Assert.That(cellA1.Value, Is.EqualTo("test"));
+    }
 }
