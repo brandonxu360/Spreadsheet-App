@@ -24,7 +24,14 @@ public class Spreadsheet
     /// The 2D array of cells to represent the cells of the spreadsheet.
     /// </summary>
     // ReSharper disable once InconsistentNaming (conflicts with stylecop)
-    private Cell?[,]? cells;
+    private readonly Cell?[,]? cells;
+
+    /// <summary>
+    /// Holds the collection of cells that are to be connected through event subscription when their circular reference is resolved.
+    /// Listener is the key cell and broadcaster is the value cell.
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private readonly Dictionary<Cell, Cell> circularReferenceTemp = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
@@ -287,6 +294,36 @@ public class Spreadsheet
     }
 
     /// <summary>
+    /// Checks the entire "tree" of references for the given reference. If found (given reference is already referenced either
+    /// directly or indirectly), return true.
+    /// </summary>
+    /// <param name="cell">The cell to check the references of.</param>
+    /// <param name="reference">The reference to check for.</param>
+    /// <returns>True if reference exists, false otherwise.</returns>
+    private bool CheckReferenceExists(Cell cell, string reference)
+    {
+        // If the referenced cell references the cell
+        if (this.GetCell(reference).ReferencedCellNames.Contains(cell.GetName()))
+        {
+            return true;
+        }
+
+        foreach (var innerReference in this.GetCell(reference).ReferencedCellNames)
+        {
+            var referencedCell = this.GetCell(innerReference);
+
+            // Recursively check the referenced cell's references
+            if (this.CheckReferenceExists(cell, innerReference))
+            {
+                return true;
+            }
+        }
+
+        // Return false if reference is not found in the reference tree
+        return false;
+    }
+
+    /// <summary>
     /// Reset all the cells in the spreadsheet to their default values (empty text, white background).
     /// </summary>
     private void ResetCells()
@@ -349,13 +386,6 @@ public class Spreadsheet
         // Extract the cell expression from the text (e.g., "=A5" -> "A5")
         var strippedExpression = expression[1..]; // Remove the '='
 
-        // Unsubscribe the cell from all cells previously subscribed to (will resubscribe depending on new expression references)
-        foreach (var reference in sender.ReferencedCellNames)
-        {
-            this.GetCell(reference).PropertyChanged -= sender.OnReferencedCellPropertyChanged;
-            sender.ReferencedCellNames.Remove(reference);
-        }
-
         // Try to build and evaluate an expression tree
         try
         {
@@ -365,7 +395,32 @@ public class Spreadsheet
             // Get a list of all the references/variables found when building the ExpressionTree (ExpressionTree's variable dictionary)
             var references = expressionTree.GetVariableNames();
 
-            // If simple single reference to cell, subscribe to cell and return the value of the referenced cell (or throw ref exception if string is empty)
+            // Check for self reference
+            if (references.Contains(sender.GetName()))
+            {
+                return "#SelfRef";
+            }
+
+            // Check for circular reference
+            foreach (var reference in references)
+            {
+                if (this.CheckReferenceExists(sender, reference))
+                {
+                    // Add the pair (referencing and referenced cells) to the temp collection so that the subscription can be made when the
+                    // circular reference is resolved
+                    this.circularReferenceTemp[sender] = this.GetCell(reference);
+                    return "#CircularRef";
+                }
+            }
+
+            // Unsubscribe the cell from all cells previously subscribed to (will resubscribe depending on new expression references)
+            foreach (var reference in sender.ReferencedCellNames)
+            {
+                this.GetCell(reference).PropertyChanged -= sender.OnReferencedCellPropertyChanged;
+                sender.ReferencedCellNames.Remove(reference);
+            }
+
+            // Only one variable found -> attempt to reference a single cell (value does not have to be valid expression, can be a normal string in this case)
             if (references.Count > 0 && strippedExpression == references.First())
             {
                 this.SubscribeToReferencedCells(sender, references.First());
@@ -373,7 +428,7 @@ public class Spreadsheet
                 return referencedValue != string.Empty ? referencedValue : "#InvalidRef";
             }
 
-            // Otherwise, iterate through each reference to subscribe to the cell, set the variable value, and return the final evaluated value
+            // Multiple variables -> attempt to reference the cells (values must be valid expression values)
             foreach (var reference in references)
             {
                 // Subscribe to the references (variables) found when building the tree
