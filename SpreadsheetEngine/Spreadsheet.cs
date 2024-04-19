@@ -27,13 +27,6 @@ public class Spreadsheet
     private readonly Cell?[,]? cells;
 
     /// <summary>
-    /// Holds the collection of cells that are to be connected through event subscription when their circular reference is resolved.
-    /// Listener is the key cell and broadcaster is the value cell.
-    /// </summary>
-    // ReSharper disable once InconsistentNaming
-    private readonly Dictionary<Cell, Cell> circularReferenceTemp = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
     /// </summary>
     /// <param name="rowCount">The number of rows in the spreadsheet.</param>
@@ -310,8 +303,6 @@ public class Spreadsheet
 
         foreach (var innerReference in this.GetCell(reference).ReferencedCellNames)
         {
-            var referencedCell = this.GetCell(innerReference);
-
             // Recursively check the referenced cell's references
             if (this.CheckReferenceExists(cell, innerReference))
             {
@@ -406,9 +397,6 @@ public class Spreadsheet
             {
                 if (this.CheckReferenceExists(sender, reference))
                 {
-                    // Add the pair (referencing and referenced cells) to the temp collection so that the subscription can be made when the
-                    // circular reference is resolved
-                    this.circularReferenceTemp[sender] = this.GetCell(reference);
                     return "#CircularRef";
                 }
             }
