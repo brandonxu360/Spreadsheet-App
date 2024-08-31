@@ -1,4 +1,2 @@
-# CptS321-HWs
-
-Name: Brandon Xu
-SID:  11815117
+Spreadsheet Application
+This application is built using C# .NET and Avalonia UI, providing a lightweight and cross-platform spreadsheet solution for managing and analyzing data.
